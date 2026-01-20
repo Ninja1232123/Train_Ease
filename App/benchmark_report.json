@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-12-18 04:40:48",
+  "weight_benchmark": {},
+  "perplexity_benchmark": {
+    "FP32 (baseline)": {
+      "perplexity": 56.17365313687742,
+      "inference_time_ms": 2831.52437210083,
+      "bits": 32
+    },
+    "INT8": {
+      "perplexity": 69.6476431013745,
+      "inference_time_ms": 1832.8313827514648,
+      "bits": 8
+    },
+    "INT4": {
+      "perplexity": 8187.255098130825,
+      "inference_time_ms": 1872.7028369903564,
+      "bits": 4
+    },
+    "\u03c0/2 (32 levels)": {
+      "perplexity": 16481.312512712288,
+      "inference_time_ms": 1884.5429420471191,
+      "bits": 5.0
+    },
+    "\u03c0/2 (256 levels)": {
+      "perplexity": 70.42774392569902,
+      "inference_time_ms": 1918.6303615570068,
+      "bits": 8.0
+    },
+    "\u03c0/2 Continuous 8-bit": {
+      "perplexity": 70.4281370256212,
+      "inference_time_ms": 1856.297254562378,
+      "bits": 8
+    },
+    "\u03c6 Golden (32 levels)": {
+      "perplexity": 16480.757719566755,
+      "inference_time_ms": 1772.5343704223633,
+      "bits": 5.0
+    }
+  },
+  "summary": {
+    "baseline_perplexity": 56.17365313687742,
+    "best_compressed_method": "INT8",
+    "best_compressed_perplexity": 69.6476431013745,
+    "perplexity_increase": 13.473989964497079
+  }
+}

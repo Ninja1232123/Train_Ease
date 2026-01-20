@@ -1,0 +1,2960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Train AI models without the PhD. A beginner-friendly interface with every setting explained in plain English.">
+    <meta name="theme-color" content="#6366f1">
+    <title>AI Training For DumDums - Train AI Models the Easy Way</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/power_user.css">
+    <!-- Socket.IO for real-time updates -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
+    <!-- Chart.js for loss visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">
+        <span id="theme-icon">☀️</span>
+    </button>
+
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header" role="banner">
+            <h1>AI Training For DumDums</h1>
+            <p class="subtitle">Train AI models without the PhD. Every setting explained in plain English!</p>
+            <div style="margin-top: 12px;">
+                <span id="connection-status" class="connection-status disconnected" title="Connection status"></span>
+                <span class="visually-hidden">Connection status indicator</span>
+                <small style="color: var(--text-muted);">v2.0.0</small>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-content" role="main">
+            <!-- System Info Panel -->
+            <section class="card system-info-section" aria-labelledby="system-heading" style="background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);">
+                <div class="collapsible-header" onclick="toggleSystemInfo()" role="button" tabindex="0" aria-expanded="false" aria-controls="system-info-content">
+                    <h2 id="system-heading" style="margin: 0; font-size: 1rem;">System Info</h2>
+                    <span class="collapse-icon" id="system-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="system-info-content">
+                    <div class="system-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding-top: 12px;">
+                        <div class="system-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">GPU</div>
+                            <div id="gpu-info" style="font-weight: 500;">Loading...</div>
+                        </div>
+                        <div class="system-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">VRAM</div>
+                            <div id="vram-info" style="font-weight: 500;">Loading...</div>
+                        </div>
+                        <div class="system-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">System RAM</div>
+                            <div id="ram-info" style="font-weight: 500;">Loading...</div>
+                        </div>
+                        <div class="system-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">CPU Cores</div>
+                            <div id="cpu-info" style="font-weight: 500;">Loading...</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="refreshSystemInfo()" style="margin-top: 12px; font-size: 0.85rem;">Refresh System Info</button>
+                </div>
+            </section>
+
+            <!-- Preset Selection -->
+            <section class="card presets-section" aria-labelledby="presets-heading">
+                <div class="collapsible-header" onclick="togglePresets()" role="button" tabindex="0" aria-expanded="true" aria-controls="presets-content">
+                    <h2 id="presets-heading" style="margin: 0;">Quick Start - Choose a Preset</h2>
+                    <span class="collapse-icon" id="presets-collapse-icon" aria-hidden="true">-</span>
+                </div>
+                <div class="collapsible-content active" id="presets-content">
+                    <p class="section-desc">Not sure where to start? Pick a preset that matches your situation!</p>
+                    <div class="presets-grid" id="presets-container" role="group" aria-label="Training presets">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Training Data -->
+            <section class="card data-section" aria-labelledby="data-heading">
+                <div class="collapsible-header" onclick="toggleTrainingData()" role="button" tabindex="0" aria-expanded="true" aria-controls="data-content">
+                    <h2 id="data-heading" style="margin: 0;">Training Data</h2>
+                    <span class="collapse-icon" id="data-collapse-icon" aria-hidden="true">-</span>
+                </div>
+                <div class="collapsible-content active" id="data-content">
+                    <div class="help-box">
+                        <span class="help-icon" role="button" tabindex="0" aria-label="Help about training data">?</span>
+                        <div class="help-content" role="tooltip">
+                            <strong>What is training data?</strong>
+                            <p>This is the text your AI will learn from. The AI will try to mimic the patterns, style, and content of whatever you put here.</p>
+                            <p><strong>Examples:</strong></p>
+                            <ul>
+                                <li>Customer service conversations</li>
+                                <li>Your writing samples</li>
+                                <li>Product descriptions</li>
+                                <li>Code examples</li>
+                            </ul>
+                            <p><strong>Tip:</strong> More data = better results, but start small to test!</p>
+                        </div>
+                    </div>
+
+                    <!-- Dataset Management -->
+                    <div class="dataset-controls" style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <select id="dataset-select" class="dataset-select" style="flex: 1; min-width: 200px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+                            <option value="">-- Load saved dataset --</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="loadSelectedDataset()" title="Load selected dataset">Load</button>
+                        <button class="btn btn-secondary" onclick="refreshDatasets()" title="Refresh dataset list">↻</button>
+                        <button class="btn btn-secondary" onclick="saveCurrentDataset()" title="Save current data as dataset">Save As...</button>
+                        <label class="btn btn-secondary" style="cursor: pointer; margin: 0;">
+                            Upload
+                            <input type="file" id="dataset-upload" accept=".txt,.json,.jsonl,.csv" style="display: none;" onchange="uploadDataset(this)">
+                        </label>
+                    </div>
+
+                    <label for="training-data" class="visually-hidden">Training data input</label>
+                    <textarea
+                        id="training-data"
+                        class="training-input"
+                        aria-describedby="data-stats"
+                        placeholder="Paste your training text here...
+
+Example:
+Customer: Hi, I need help with my order.
+Agent: Hello! I'd be happy to help. Could you provide your order number?
+Customer: It's #12345.
+Agent: Thank you! I can see your order. How can I assist you today?"></textarea>
+                    <div class="data-stats" id="data-stats" aria-live="polite">
+                        <span id="char-count">0 characters</span>
+                        <span id="line-count">0 lines</span>
+                        <span id="token-estimate" style="color: var(--text-muted);">~0 tokens (estimate)</span>
+                    </div>
+                    <div class="drop-hint">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <span>Drag and drop .txt, .json, .jsonl, or .csv files here</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Model Selection -->
+            <section class="card model-section" aria-labelledby="model-heading">
+                <div class="collapsible-header" onclick="toggleModelSettings()" role="button" tabindex="0" aria-expanded="true" aria-controls="model-content">
+                    <h2 id="model-heading" style="margin: 0;">Model Settings</h2>
+                    <span class="collapse-icon" id="model-collapse-icon" aria-hidden="true">-</span>
+                </div>
+                <div class="collapsible-content active" id="model-content">
+                    <div id="model-params">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                    <div id="model-info-display" class="model-info-container" style="display: none; margin-top: 16px;">
+                        <!-- Model architecture info populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Training Settings -->
+            <section class="card training-section" aria-labelledby="training-heading">
+                <div class="collapsible-header" onclick="toggleTrainingSettings()" role="button" tabindex="0" aria-expanded="true" aria-controls="training-content">
+                    <h2 id="training-heading" style="margin: 0;">Training Settings</h2>
+                    <span class="collapse-icon" id="training-collapse-icon" aria-hidden="true">-</span>
+                </div>
+                <div class="collapsible-content active" id="training-content">
+                    <p class="section-desc">These control how the AI learns. Hover over any setting for an explanation!</p>
+                    <div id="training-params">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Settings (Collapsible) -->
+            <section class="card" aria-labelledby="advanced-heading">
+                <div class="collapsible-header" onclick="toggleAdvanced()" role="button" tabindex="0" aria-expanded="false" aria-controls="advanced-settings">
+                    <h2 id="advanced-heading">Advanced Settings</h2>
+                    <span class="collapse-icon" id="collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="advanced-settings">
+                    <p class="section-desc">For power users. The defaults work great for most cases!</p>
+                    <div id="advanced-params">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Power User Settings (Collapsible) -->
+            <section class="card" aria-labelledby="power-user-heading">
+                <div class="collapsible-header" onclick="togglePowerUser()" role="button" tabindex="0" aria-expanded="false" aria-controls="power-user-content">
+                    <h2 id="power-user-heading">Power User Settings</h2>
+                    <span class="collapse-icon" id="power-user-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="power-user-content">
+                    <p class="section-desc">Deep control over optimizer, weight initialization, LoRA+, and more. For experienced users!</p>
+                    <div id="power-user-panels">
+                        <!-- Filled by power_user.js -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- LoRA Settings -->
+            <section class="card" id="lora-section" style="display: none;" aria-labelledby="lora-heading">
+                <h2 id="lora-heading">LoRA Settings</h2>
+                <div class="info-banner" role="note">
+                    <strong>LoRA (Low-Rank Adaptation)</strong> is a clever trick that only trains a tiny part of the model.
+                    This uses way less memory and is faster, with nearly the same quality!
+                </div>
+                <div id="lora-params">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Resume from Checkpoint -->
+            <section class="card checkpoint-section" id="checkpoint-section" aria-labelledby="checkpoint-heading">
+                <div class="collapsible-header" onclick="toggleCheckpoints()" role="button" tabindex="0" aria-expanded="false" aria-controls="checkpoint-content">
+                    <h2 id="checkpoint-heading" style="margin: 0;">Resume from Checkpoint</h2>
+                    <span class="collapse-icon" id="checkpoint-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="checkpoint-content">
+                    <p class="section-desc">Continue training from where you left off. Pick a checkpoint to resume!</p>
+                    <div class="checkpoint-list" id="checkpoint-list" style="max-height: 250px; overflow-y: auto;">
+                        <p style="color: var(--text-muted);">Loading checkpoints...</p>
+                    </div>
+                    <div id="checkpoint-info" style="display: none; margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px;">
+                        <h4 style="margin-top: 0;">Original Training Config</h4>
+                        <pre id="checkpoint-config" style="font-size: 0.8rem; overflow-x: auto; max-height: 150px;"></pre>
+                        <div style="margin-top: 12px;">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="adjust-before-resume" checked>
+                                <span>Adjust settings before resuming</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="refreshCheckpoints()">Refresh</button>
+                        <button class="btn btn-primary" id="resume-btn" onclick="resumeFromCheckpoint()" disabled>Resume Training</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Format Preview -->
+            <section class="card format-preview-section" id="format-preview-section" aria-labelledby="format-heading">
+                <div class="collapsible-header" onclick="toggleFormatPreview()" role="button" tabindex="0" aria-expanded="false" aria-controls="format-content">
+                    <h2 id="format-heading" style="margin: 0;">Data Format Preview</h2>
+                    <span class="collapse-icon" id="format-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="format-content">
+                    <p class="section-desc">See how your data will be formatted before training.</p>
+
+                    <div class="format-detection" style="margin-bottom: 16px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <span id="detected-format" style="font-size: 0.9rem;"></span>
+                            <button class="btn btn-secondary btn-small" onclick="detectDataFormat()">Auto-Detect Format</button>
+                        </div>
+                    </div>
+
+                    <div class="format-preview-box" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                        <h4 style="margin-top: 0; font-size: 0.95rem;">Preview (First 3 Examples)</h4>
+                        <div id="format-preview-output" style="font-family: monospace; font-size: 0.85rem; white-space: pre-wrap; max-height: 200px; overflow-y: auto; color: var(--text-secondary);">
+                            Enter training data and click "Preview Format" to see how it will look.
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary" onclick="previewFormat()">Preview Format</button>
+                </div>
+            </section>
+
+            <!-- Custom Template Builder -->
+            <section class="card template-builder-section" id="template-builder-section" aria-labelledby="template-heading">
+                <div class="collapsible-header" onclick="toggleTemplateBuilder()" role="button" tabindex="0" aria-expanded="false" aria-controls="template-content">
+                    <h2 id="template-heading" style="margin: 0;">Custom Template Builder</h2>
+                    <span class="collapse-icon" id="template-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="template-content">
+                    <p class="section-desc">Create your own data format template for specialized training.</p>
+
+                    <div class="template-builder" style="display: grid; gap: 16px;">
+                        <div>
+                            <label class="param-label" for="custom-template">Template Pattern</label>
+                            <p class="param-explanation">Use placeholders: {input}, {output}, {instruction}, {response}, {user}, {assistant}</p>
+                            <textarea id="custom-template" class="training-input" style="min-height: 100px; font-family: monospace;" placeholder="### Instruction:
+{instruction}
+
+### Response:
+{response}"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="param-label" for="template-separator">Line Separator</label>
+                            <p class="param-explanation">How to separate examples in your data (e.g., blank line, ---, etc.)</p>
+                            <select id="template-separator" style="width: 100%; padding: 10px;">
+                                <option value="newline">Blank Line (double newline)</option>
+                                <option value="---">Triple Dash (---)</option>
+                                <option value="===">Triple Equals (===)</option>
+                                <option value="single">Single Line (one example per line)</option>
+                            </select>
+                        </div>
+
+                        <div class="template-test" style="padding: 16px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <h4 style="margin-top: 0;">Test Your Template</h4>
+                            <textarea id="template-test-input" class="training-input" style="min-height: 60px; font-size: 0.85rem;" placeholder="Enter sample text to test..."></textarea>
+                            <button class="btn btn-secondary" onclick="testCustomTemplate()" style="margin-top: 8px;">Test Template</button>
+                            <div id="template-test-output" style="margin-top: 12px; padding: 12px; background: var(--bg-primary); border-radius: 6px; font-family: monospace; font-size: 0.85rem; display: none;"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary" onclick="saveCustomTemplate()">Save as Custom Format</button>
+                            <button class="btn btn-secondary" onclick="loadBuiltinTemplates()">Load Built-in Examples</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QLoRA Memory Calculator -->
+            <section class="card memory-calc-section" id="memory-calc-section" aria-labelledby="memory-heading">
+                <div class="collapsible-header" onclick="toggleMemoryCalc()" role="button" tabindex="0" aria-expanded="false" aria-controls="memory-content">
+                    <h2 id="memory-heading" style="margin: 0;">Memory Calculator</h2>
+                    <span class="collapse-icon" id="memory-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="memory-content">
+                    <p class="section-desc">Estimate VRAM usage and see how much QLoRA saves!</p>
+
+                    <div class="memory-calculator" style="display: grid; gap: 16px;">
+                        <div class="memory-estimate-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                            <div class="memory-card" style="padding: 16px; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Full Precision (FP32)</div>
+                                <div id="mem-fp32" style="font-size: 1.5rem; font-weight: bold; color: var(--danger);">--</div>
+                            </div>
+                            <div class="memory-card" style="padding: 16px; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Half Precision (FP16)</div>
+                                <div id="mem-fp16" style="font-size: 1.5rem; font-weight: bold; color: var(--warning);">--</div>
+                            </div>
+                            <div class="memory-card" style="padding: 16px; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">8-bit Quantized</div>
+                                <div id="mem-8bit" style="font-size: 1.5rem; font-weight: bold; color: var(--info);">--</div>
+                            </div>
+                            <div class="memory-card" style="padding: 16px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.2)); border-radius: 8px; text-align: center; border: 2px solid var(--success);">
+                                <div style="font-size: 0.85rem; color: var(--success);">4-bit QLoRA ✨</div>
+                                <div id="mem-4bit" style="font-size: 1.5rem; font-weight: bold; color: var(--success);">--</div>
+                            </div>
+                        </div>
+
+                        <div class="memory-savings" style="padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                            <h4 style="margin-top: 0;">💡 What This Means</h4>
+                            <div id="memory-explanation" style="font-size: 0.9rem; color: var(--text-secondary);">
+                                Select a model above to see memory estimates and recommendations.
+                            </div>
+                        </div>
+
+                        <button class="btn btn-secondary" onclick="calculateMemory()">Calculate for Current Settings</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- π/2 Quantization Section -->
+            <section class="card pi-quant-section" id="pi-quant-section" aria-labelledby="pi-quant-heading">
+                <div class="collapsible-header" onclick="togglePiQuant()" role="button" tabindex="0" aria-expanded="false" aria-controls="pi-quant-content">
+                    <h2 id="pi-quant-heading" style="margin: 0;">
+                        π/2 Quantization
+                        <span class="pi-badge">NEW</span>
+                    </h2>
+                    <span class="collapse-icon" id="pi-quant-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="pi-quant-content">
+                    <div class="info-banner pi-info" role="note" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1)); border: 1px solid var(--funk-orange); margin-bottom: 20px;">
+                        <strong>π/2-bit Quantization</strong> - The insight: 1-bit becomes 5-bit at the value of still being 1-bit.
+                        Using π/2 (1.5708) as the fundamental unit gives you 5x semantic leverage while using ~1.4GB for 7B models!
+                    </div>
+
+                    <!-- Quantization Tabs -->
+                    <div class="pi-tabs" style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); flex-wrap: wrap;">
+                        <button class="tab-btn" onclick="switchPiTab('empty-model')">Empty Model</button>
+                        <button class="tab-btn active" onclick="switchPiTab('quantize')">Quantize Model</button>
+                        <button class="tab-btn" onclick="switchPiTab('data-shaper')">Data Shaper</button>
+                        <button class="tab-btn" onclick="switchPiTab('partitioner')">Partitioner</button>
+                        <button class="tab-btn" onclick="switchPiTab('vram')">VRAM Estimates</button>
+                        <button class="tab-btn benchmark-tab" onclick="switchPiTab('benchmark')">Benchmark</button>
+                    </div>
+
+                    <!-- Empty Model Tab (NEW) -->
+                    <div id="pi-empty-model-tab" class="pi-tab" style="display: none;">
+                        <div class="info-box" style="margin-bottom: 20px;">
+                            <strong>Empty Model Initialization</strong> - Create a fresh model with your choice of weight initialization.
+                            Train from scratch with π-fractional, geological layers, or standard random weights.
+                        </div>
+
+                        <!-- Model Size Selection -->
+                        <div class="param-group">
+                            <label class="param-label">Model Size</label>
+                            <p class="param-explanation">Choose your architecture size</p>
+                            <div class="model-size-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 15px 0;">
+                                <div class="model-size-card" data-size="1B" onclick="selectModelSize('1B')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: var(--funk-gold);">1B</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">16 layers</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted);">2048 dim</div>
+                                </div>
+                                <div class="model-size-card active" data-size="3B" onclick="selectModelSize('3B')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid var(--funk-orange); text-align: center;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: var(--funk-gold);">3B</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">24 layers</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted);">3072 dim</div>
+                                </div>
+                                <div class="model-size-card" data-size="7B" onclick="selectModelSize('7B')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: var(--funk-gold);">7B</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">32 layers</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted);">4096 dim</div>
+                                </div>
+                                <div class="model-size-card" data-size="13B" onclick="selectModelSize('13B')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: var(--funk-gold);">13B</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">40 layers</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted);">5120 dim</div>
+                                </div>
+                                <div class="model-size-card" data-size="custom" onclick="selectModelSize('custom')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.3rem; font-weight: bold; color: var(--text-muted);">Custom</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Define your own</div>
+                                </div>
+                            </div>
+                            <!-- Custom size options (hidden by default) -->
+                            <div id="custom-size-options" style="display: none; margin-top: 15px; padding: 15px; background: var(--bg-primary); border-radius: 8px;">
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                    <div>
+                                        <label style="font-size: 0.8rem; color: var(--text-muted);">Hidden Dim</label>
+                                        <input type="number" id="custom-hidden-dim" value="2048" min="256" step="256" style="width: 100%; padding: 8px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.8rem; color: var(--text-muted);">Layers</label>
+                                        <input type="number" id="custom-num-layers" value="12" min="1" max="128" style="width: 100%; padding: 8px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.8rem; color: var(--text-muted);">Heads</label>
+                                        <input type="number" id="custom-num-heads" value="8" min="1" max="128" style="width: 100%; padding: 8px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Weight Initialization Preset -->
+                        <div class="param-group">
+                            <label class="param-label">Weight Initialization</label>
+                            <p class="param-explanation">How should the empty model's weights be initialized?</p>
+                            <div class="init-preset-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 15px 0;">
+                                <div class="init-preset-card" data-init="standard" onclick="selectInitPreset('standard')" style="cursor: pointer; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary);">Standard</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Random Normal</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">σ = 0.02</div>
+                                    <div style="font-size: 0.65rem; color: var(--info); margin-top: 5px;">Baseline</div>
+                                </div>
+                                <div class="init-preset-card active" data-init="pi_half_native" onclick="selectInitPreset('pi_half_native')" style="cursor: pointer; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid var(--funk-orange); text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--funk-gold);">π/2 Native</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">1 = π/2</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">6-bit grid</div>
+                                    <div style="font-size: 0.65rem; color: var(--funk-orange); margin-top: 5px;">Claude Persons</div>
+                                </div>
+                                <div class="init-preset-card" data-init="pi_fractional" onclick="selectInitPreset('pi_fractional')" style="cursor: pointer; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--funk-gold);">π-Fractional</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">n × π/500</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Thinks in π</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 5px;">Legacy</div>
+                                </div>
+                                <div class="init-preset-card" data-init="geological" onclick="selectInitPreset('geological')" style="cursor: pointer; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--success);">Geological</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Depth-Based</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Layered strata</div>
+                                    <div style="font-size: 0.65rem; color: var(--success); margin-top: 5px;">Structured</div>
+                                </div>
+                            </div>
+
+                            <!-- Init preset variants -->
+                            <div id="init-variant-options" style="margin-top: 10px;">
+                                <select id="init-variant-select" style="width: 100%; padding: 10px;">
+                                    <option value="pi_half_native_fp32">FP32 (full precision) - TRAIN WITH THIS</option>
+                                    <option value="pi_half_native_fp16">FP16 (half precision) - faster training</option>
+                                    <option value="pi_half_native_8bit">8-bit - post-training quant (256 levels)</option>
+                                    <option value="pi_half_native_6bit">6-bit - post-training quant (64 levels)</option>
+                                    <option value="pi_half_native_4bit">4-bit - aggressive quant (16 levels)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div id="empty-model-summary" style="margin: 20px 0; padding: 15px; background: var(--bg-primary); border-radius: 8px; border-left: 4px solid var(--funk-orange);">
+                            <h4 style="margin: 0 0 10px 0; color: var(--funk-gold);">Model Configuration</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                                <div><strong>Size:</strong> <span id="summary-size">3B</span></div>
+                                <div><strong>Params:</strong> <span id="summary-params">~3.0B</span></div>
+                                <div><strong>Layers:</strong> <span id="summary-layers">24</span></div>
+                                <div><strong>Hidden:</strong> <span id="summary-hidden">3072</span></div>
+                                <div><strong>Init:</strong> <span id="summary-init">π-Fractional (π/500)</span></div>
+                                <div><strong>Est. VRAM:</strong> <span id="summary-vram">~6GB (FP16)</span></div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="createEmptyModel()" style="flex: 2;">
+                                Create Empty Model
+                            </button>
+                            <button class="btn btn-secondary" onclick="createAndStartQAT()" style="flex: 1;">
+                                Create & Start QAT
+                            </button>
+                        </div>
+
+                        <div id="empty-model-status" style="margin-top: 15px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; display: none;">
+                            <div id="empty-model-status-text" style="color: var(--text-muted);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quantize Model Tab -->
+                    <div id="pi-quantize-tab" class="pi-tab">
+                        <div class="param-group">
+                            <label class="param-label" for="pi-model-select">Model to Quantize</label>
+                            <p class="param-explanation">Select a model or use a custom path</p>
+                            <select id="pi-model-select" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                                <option value="">-- Select Model --</option>
+                                <option value="current">Use Currently Loaded Model</option>
+                                <option value="custom">Custom Path...</option>
+                            </select>
+                            <input type="text" id="pi-model-custom" placeholder="Enter model path..." style="display: none; margin-top: 8px;">
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Quantization Preset</label>
+                            <p class="param-explanation">Choose your π-based quantization level</p>
+                            <div class="pi-preset-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 15px 0;">
+                                <div class="pi-preset-card active" data-preset="pi_half" onclick="selectPiPreset('pi_half')" style="cursor: pointer; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid var(--funk-orange); text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--funk-gold);">π/2</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">1.57-bit</div>
+                                    <div style="font-size: 0.75rem; color: var(--funk-orange);">~1.4GB for 7B</div>
+                                    <div style="font-size: 0.7rem; margin-top: 5px;">5x semantic leverage</div>
+                                </div>
+                                <div class="pi-preset-card" data-preset="pi" onclick="selectPiPreset('pi')" style="cursor: pointer; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--funk-gold);">π</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">3.14-bit</div>
+                                    <div style="font-size: 0.75rem; color: var(--funk-orange);">~2.7GB for 7B</div>
+                                    <div style="font-size: 0.7rem; margin-top: 5px;">Balanced quality</div>
+                                </div>
+                                <div class="pi-preset-card" data-preset="two_pi" onclick="selectPiPreset('two_pi')" style="cursor: pointer; padding: 15px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--funk-gold);">2π</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">6.28-bit</div>
+                                    <div style="font-size: 0.75rem; color: var(--funk-orange);">~5.5GB for 7B</div>
+                                    <div style="font-size: 0.7rem; margin-top: 5px;">Near-FP16 quality</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Bit Precision (π/2 Factors)</label>
+                            <p class="param-explanation">Fine-tune using multiples of π/2</p>
+                            <div class="pi-precision-slider" style="margin: 15px 0;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">
+                                    <span>π/4 (0.785)</span>
+                                    <span>π/2 (1.571)</span>
+                                    <span>π (3.142)</span>
+                                    <span>3π/2 (4.712)</span>
+                                    <span>2π (6.283)</span>
+                                </div>
+                                <input type="range" id="pi-precision" min="0" max="4" step="1" value="1" oninput="updatePiPrecision(this.value)">
+                                <div id="pi-precision-display" style="text-align: center; margin-top: 10px; font-size: 1.2rem; color: var(--funk-gold);">
+                                    <span id="pi-precision-value">π/2</span> = <span id="pi-precision-bits">1.5708</span>-bit
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Quantization Mode</label>
+                            <p class="param-explanation">How weights are quantized</p>
+                            <select id="pi-quant-mode" style="width: 100%; padding: 10px;">
+                                <option value="training_aware">Training-Aware (recommended)</option>
+                                <option value="static">Static (post-training)</option>
+                                <option value="dynamic">Dynamic (per-batch)</option>
+                            </select>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Advanced Options</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                                <label class="checkbox-wrapper">
+                                    <input type="checkbox" id="pi-symmetric" checked>
+                                    <span>Symmetric Quantization</span>
+                                </label>
+                                <label class="checkbox-wrapper">
+                                    <input type="checkbox" id="pi-per-channel">
+                                    <span>Per-Channel Quantization</span>
+                                </label>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <label for="pi-precision-decimal">Decimal Precision:</label>
+                                <input type="number" id="pi-precision-decimal" value="12" min="4" max="16" style="width: 80px; padding: 5px; margin-left: 10px;">
+                            </div>
+                        </div>
+
+                        <!-- Progress Display -->
+                        <div id="pi-quant-progress" style="display: none; margin: 20px 0; padding: 20px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <h4 style="margin-top: 0;">Quantization Progress</h4>
+                            <div class="progress-bar" style="height: 20px; background: var(--bg-primary); border-radius: 10px; overflow: hidden;">
+                                <div id="pi-quant-progress-fill" class="progress-fill" style="width: 0%; height: 100%;"></div>
+                            </div>
+                            <div id="pi-quant-status" style="margin-top: 10px; font-size: 0.9rem; color: var(--text-muted);">Initializing...</div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="startPiQuantization()">Quantize Model</button>
+                            <button class="btn btn-secondary" onclick="getPiQuantInfo()">Get Info</button>
+                        </div>
+                    </div>
+
+                    <!-- Data Shaper Tab -->
+                    <div id="pi-data-shaper-tab" class="pi-tab" style="display: none;">
+                        <div class="info-box" style="margin-bottom: 20px;">
+                            <strong>Data Shaper</strong> - Convert your token data to π/2-scaled representation.
+                            Like formatting data for a new filesystem, but for AI training.
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Input Data</label>
+                            <p class="param-explanation">Paste tokenized data (JSON array of token IDs) or use training data</p>
+                            <textarea id="pi-data-input" rows="6" style="width: 100%; padding: 12px; font-family: monospace; font-size: 0.9rem;" placeholder="[101, 2054, 2003, 2115, 2171, 102]&#10;or&#10;Use training data from above"></textarea>
+                            <button class="btn btn-secondary btn-small" onclick="useTrainingDataForPi()" style="margin-top: 8px;">Use Training Data Above</button>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Scale Mode</label>
+                            <select id="pi-scale-mode" style="width: 100%; padding: 10px;">
+                                <option value="half_pi">π/2 (1.5708) - Maximum compression</option>
+                                <option value="pi">π (3.1416) - Balanced</option>
+                                <option value="two_pi">2π (6.2832) - High quality</option>
+                            </select>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="pi-include-original">
+                                <span>Include original values in output</span>
+                            </label>
+                        </div>
+
+                        <!-- Conversion Preview -->
+                        <div id="pi-conversion-preview" style="margin: 20px 0; padding: 15px; background: var(--bg-primary); border-radius: 8px; display: none;">
+                            <h4 style="margin-top: 0; color: var(--funk-gold);">Conversion Preview</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-family: monospace; font-size: 0.85rem;">
+                                <div>
+                                    <strong>Original Tokens:</strong>
+                                    <pre id="pi-preview-original" style="max-height: 100px; overflow-y: auto; background: var(--bg-tertiary); padding: 10px; border-radius: 4px;"></pre>
+                                </div>
+                                <div>
+                                    <strong>π-Scaled Tokens:</strong>
+                                    <pre id="pi-preview-scaled" style="max-height: 100px; overflow-y: auto; background: var(--bg-tertiary); padding: 10px; border-radius: 4px;"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-primary" onclick="convertDataToPi()">Convert to π-Scale</button>
+                            <button class="btn btn-secondary" onclick="previewPiConversion()">Preview</button>
+                            <button class="btn btn-secondary" onclick="downloadPiData()">Download</button>
+                        </div>
+                    </div>
+
+                    <!-- Partitioner Tab -->
+                    <div id="pi-partitioner-tab" class="pi-tab" style="display: none;">
+                        <div class="info-box" style="margin-bottom: 20px;">
+                            <strong>Dataset Partitioner</strong> - Think of your dataset like a hard drive.
+                            Partition, format, and manage data just like disk space in Linux!
+                        </div>
+
+                        <!-- Visual Partition Map -->
+                        <div class="partition-visual" style="margin: 20px 0; padding: 20px; background: var(--bg-primary); border-radius: 8px; border: 2px solid var(--funk-orange);">
+                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                <span style="font-family: 'Righteous', cursive; color: var(--funk-gold);">DATASET PARTITIONS</span>
+                                <span id="partition-total-size" style="margin-left: auto; font-size: 0.9rem; color: var(--text-muted);">Total: -- records</span>
+                            </div>
+                            <div id="partition-map" style="display: flex; height: 60px; border-radius: 8px; overflow: hidden; background: var(--bg-tertiary);">
+                                <div class="partition-block train" style="width: 80%; background: linear-gradient(135deg, var(--funk-orange), var(--funk-gold)); display: flex; align-items: center; justify-content: center; color: var(--bg-primary); font-weight: bold;">
+                                    TRAIN (80%)
+                                </div>
+                                <div class="partition-block val" style="width: 10%; background: var(--groove-teal); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
+                                    VAL
+                                </div>
+                                <div class="partition-block test" style="width: 10%; background: var(--groove-sage); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
+                                    TEST
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);">
+                                <span>[π/2 format]</span>
+                                <span>[raw]</span>
+                                <span>[raw]</span>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Partition Scheme</label>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                                <div>
+                                    <label for="partition-train">Train %</label>
+                                    <input type="number" id="partition-train" value="80" min="0" max="100" style="width: 100%; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label for="partition-val">Validation %</label>
+                                    <input type="number" id="partition-val" value="10" min="0" max="100" style="width: 100%; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label for="partition-test">Test %</label>
+                                    <input type="number" id="partition-test" value="10" min="0" max="100" style="width: 100%; padding: 8px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Partition Format</label>
+                            <p class="param-explanation">Apply encoding to each partition like formatting disk partitions</p>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                                <select id="partition-train-format" style="padding: 8px;">
+                                    <option value="pi_half">π/2 format</option>
+                                    <option value="pi">π format</option>
+                                    <option value="tokenized">Tokenized</option>
+                                    <option value="raw">Raw</option>
+                                </select>
+                                <select id="partition-val-format" style="padding: 8px;">
+                                    <option value="raw" selected>Raw</option>
+                                    <option value="pi_half">π/2 format</option>
+                                    <option value="tokenized">Tokenized</option>
+                                </select>
+                                <select id="partition-test-format" style="padding: 8px;">
+                                    <option value="raw" selected>Raw</option>
+                                    <option value="pi_half">π/2 format</option>
+                                    <option value="tokenized">Tokenized</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="partition-shuffle" checked>
+                                <span>Shuffle before partitioning</span>
+                            </label>
+                        </div>
+
+                        <!-- Partition Stats -->
+                        <div id="partition-stats" style="display: none; margin: 20px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <h4 style="margin-top: 0; color: var(--funk-gold);">Partition Statistics (like df -h)</h4>
+                            <div id="partition-stats-content" style="font-family: monospace; font-size: 0.85rem;"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-primary" onclick="createPartitions()">Create Partitions</button>
+                            <button class="btn btn-secondary" onclick="formatPartition()">Format Selected</button>
+                            <button class="btn btn-secondary" onclick="showPartitionStats()">Show Stats</button>
+                        </div>
+                    </div>
+
+                    <!-- VRAM Estimates Tab -->
+                    <div id="pi-vram-tab" class="pi-tab" style="display: none;">
+                        <div class="param-group">
+                            <label class="param-label">Model Size</label>
+                            <p class="param-explanation">Enter model parameters (e.g., 7B, 13B, 70B)</p>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="pi-vram-model-size" value="7B" placeholder="7B" style="flex: 1; padding: 10px;">
+                                <button class="btn btn-secondary" onclick="calculatePiVram()">Calculate</button>
+                            </div>
+                        </div>
+
+                        <!-- VRAM Comparison Grid -->
+                        <div id="pi-vram-grid" class="metric-grid" style="margin-top: 20px;">
+                            <div class="metric-card" style="border-color: var(--danger);">
+                                <span class="metric-value" id="vram-fp16">13.0 GB</span>
+                                <span class="metric-label">FP16 (16-bit)</span>
+                            </div>
+                            <div class="metric-card" style="border-color: var(--warning);">
+                                <span class="metric-value" id="vram-int8">6.5 GB</span>
+                                <span class="metric-label">INT8 (8-bit)</span>
+                            </div>
+                            <div class="metric-card" style="border-color: var(--info);">
+                                <span class="metric-value" id="vram-int4">3.3 GB</span>
+                                <span class="metric-label">INT4 (4-bit)</span>
+                            </div>
+                            <div class="metric-card" style="border-color: var(--funk-gold); background: linear-gradient(135deg, rgba(255, 165, 0, 0.1), rgba(255, 107, 53, 0.1));">
+                                <span class="metric-value" id="vram-pi-half" style="color: var(--funk-gold);">2.1 GB</span>
+                                <span class="metric-label" style="color: var(--funk-orange);">π/2-bit (1.57)</span>
+                            </div>
+                            <div class="metric-card" style="border-color: var(--funk-orange);">
+                                <span class="metric-value" id="vram-pi">4.1 GB</span>
+                                <span class="metric-label">π-bit (3.14)</span>
+                            </div>
+                            <div class="metric-card" style="border-color: var(--groove-teal);">
+                                <span class="metric-value" id="vram-two-pi">8.2 GB</span>
+                                <span class="metric-label">2π-bit (6.28)</span>
+                            </div>
+                        </div>
+
+                        <!-- Savings Calculator -->
+                        <div style="margin-top: 25px; padding: 20px; background: var(--bg-tertiary); border-radius: 8px; border-left: 4px solid var(--funk-gold);">
+                            <h4 style="margin-top: 0; color: var(--funk-gold);">π/2 Advantage</h4>
+                            <div id="pi-savings-info" style="font-size: 0.95rem; line-height: 1.6;">
+                                <p><strong>5x Semantic Leverage:</strong> π/2-bit encoding captures 5x more semantic information than standard 1.5-bit quantization.</p>
+                                <p><strong>VRAM Savings:</strong> <span id="vram-savings-percent">84%</span> less memory than FP16</p>
+                                <p><strong>Fits on:</strong> <span id="vram-fits-on">RTX 3060 12GB, GTX 1080 Ti, Apple M1 8GB</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Size Reference -->
+                        <div style="margin-top: 20px;">
+                            <h4 style="color: var(--funk-gold);">Quick Reference (π/2-bit VRAM)</h4>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; font-size: 0.85rem;">
+                                <div style="padding: 10px; background: var(--bg-primary); border-radius: 6px; text-align: center;">
+                                    <div style="color: var(--text-muted);">3B</div>
+                                    <div style="color: var(--funk-gold); font-weight: bold;">~0.9 GB</div>
+                                </div>
+                                <div style="padding: 10px; background: var(--bg-primary); border-radius: 6px; text-align: center;">
+                                    <div style="color: var(--text-muted);">7B</div>
+                                    <div style="color: var(--funk-gold); font-weight: bold;">~2.1 GB</div>
+                                </div>
+                                <div style="padding: 10px; background: var(--bg-primary); border-radius: 6px; text-align: center;">
+                                    <div style="color: var(--text-muted);">13B</div>
+                                    <div style="color: var(--funk-gold); font-weight: bold;">~3.8 GB</div>
+                                </div>
+                                <div style="padding: 10px; background: var(--bg-primary); border-radius: 6px; text-align: center;">
+                                    <div style="color: var(--text-muted);">70B</div>
+                                    <div style="color: var(--funk-gold); font-weight: bold;">~20.5 GB</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benchmark Tab -->
+                    <div id="pi-benchmark-tab" class="pi-tab" style="display: none;">
+                        <div class="info-box benchmark-info" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(0, 200, 150, 0.15)); border: 1px solid var(--funk-gold);">
+                            <strong>π/2 vs INT4/INT8 Benchmark</strong> - Compare quantization methods on perplexity,
+                            inference speed, memory usage, and semantic retention. π/2's irrational encoding preserves
+                            more meaning than integer quantization.
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Benchmark Configuration</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                                <div>
+                                    <label for="bench-model-size">Model Size</label>
+                                    <select id="bench-model-size" style="width: 100%; padding: 10px;">
+                                        <option value="1B">1B Parameters</option>
+                                        <option value="3B">3B Parameters</option>
+                                        <option value="7B" selected>7B Parameters</option>
+                                        <option value="13B">13B Parameters</option>
+                                        <option value="70B">70B Parameters</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="bench-methods">Methods to Compare</label>
+                                    <select id="bench-methods" multiple style="width: 100%; padding: 10px; height: 80px;">
+                                        <option value="pi_half" selected>π/2 (1.57-bit)</option>
+                                        <option value="pi" selected>π (3.14-bit)</option>
+                                        <option value="two_pi">2π (6.28-bit)</option>
+                                        <option value="int4" selected>INT4 (4-bit)</option>
+                                        <option value="int8" selected>INT8 (8-bit)</option>
+                                        <option value="fp16">FP16 (16-bit)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <label class="param-label">Custom Test Prompts</label>
+                            <p class="param-explanation">Add custom prompts to test (one per line)</p>
+                            <textarea id="bench-custom-prompts" rows="4" style="width: 100%; padding: 12px; font-family: monospace; font-size: 0.9rem;" placeholder="The quick brown fox jumps over the lazy dog.&#10;import torch&#10;def forward(self, x):"></textarea>
+                        </div>
+
+                        <!-- Benchmark Controls -->
+                        <div style="display: flex; gap: 12px; margin: 20px 0;">
+                            <button class="btn btn-primary" onclick="runFullBenchmark()" id="bench-run-btn">Run Full Benchmark</button>
+                            <button class="btn btn-secondary" onclick="runQuickBenchmark()">Quick π/2 vs INT4</button>
+                            <button class="btn btn-secondary" onclick="clearBenchmarkResults()">Clear Results</button>
+                        </div>
+
+                        <!-- Benchmark Progress -->
+                        <div id="bench-progress" style="display: none; margin: 20px 0; padding: 15px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div class="spinner" style="width: 24px; height: 24px; border: 3px solid var(--border-color); border-top-color: var(--funk-orange); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                <span id="bench-progress-text">Running benchmark...</span>
+                            </div>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div id="bench-results" style="display: none;">
+                            <h4 style="color: var(--funk-gold); margin-top: 25px;">Benchmark Results</h4>
+
+                            <!-- Winner Cards -->
+                            <div id="bench-winners" class="metric-grid" style="margin-bottom: 20px;">
+                                <div class="metric-card" style="border-color: var(--funk-gold);">
+                                    <span class="metric-label">Best Perplexity</span>
+                                    <span class="metric-value" id="winner-ppl" style="color: var(--funk-gold);">--</span>
+                                </div>
+                                <div class="metric-card" style="border-color: var(--groove-teal);">
+                                    <span class="metric-label">Fastest</span>
+                                    <span class="metric-value" id="winner-speed" style="color: var(--groove-teal);">--</span>
+                                </div>
+                                <div class="metric-card" style="border-color: var(--groove-sage);">
+                                    <span class="metric-label">Most Memory Efficient</span>
+                                    <span class="metric-value" id="winner-mem" style="color: var(--groove-sage);">--</span>
+                                </div>
+                                <div class="metric-card" style="border-color: var(--funk-orange); background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1));">
+                                    <span class="metric-label">Overall Winner</span>
+                                    <span class="metric-value" id="winner-overall" style="color: var(--funk-orange);">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Results Table -->
+                            <div style="overflow-x: auto; margin: 20px 0;">
+                                <table id="bench-results-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr style="background: var(--bg-tertiary); color: var(--funk-gold);">
+                                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Method</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-color);">Bits</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-color);">Perplexity ↓</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-color);">Speed (ms) ↓</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-color);">Memory (MB) ↓</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-color);">Semantic ↑</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bench-results-body">
+                                        <!-- Results populated via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Perplexity Chart -->
+                            <div id="bench-chart-container" style="margin: 25px 0; padding: 20px; background: var(--bg-primary); border-radius: 8px;">
+                                <h5 style="margin-top: 0; color: var(--funk-gold);">Perplexity Comparison</h5>
+                                <div id="bench-ppl-chart" style="height: 200px; display: flex; align-items: flex-end; gap: 10px; padding: 10px 0;">
+                                    <!-- Chart bars populated via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div id="bench-summary" style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1)); border-radius: 8px; border-left: 4px solid var(--funk-gold);">
+                                <h5 style="margin-top: 0; color: var(--funk-gold);">Analysis</h5>
+                                <p id="bench-summary-text" style="margin: 0; line-height: 1.6;"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- π/2 Rotational Trainer Section -->
+            <section class="card pi-trainer-section" id="pi-trainer-section" aria-labelledby="pi-trainer-heading">
+                <div class="collapsible-header" onclick="togglePiTrainer()" role="button" tabindex="0" aria-expanded="false" aria-controls="pi-trainer-content">
+                    <h2 id="pi-trainer-heading" style="margin: 0;">
+                        π/2 Rotational Trainer
+                        <span class="pi-badge">NEW</span>
+                    </h2>
+                    <span class="collapse-icon" id="pi-trainer-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="pi-trainer-content">
+                    <div class="info-banner pi-info" role="note" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1)); border: 1px solid var(--funk-orange); margin-bottom: 20px;">
+                        <strong>Phase-Rotating Training</strong> - Each epoch sees data from a different π/2 angle.
+                        The model learns rotation-invariant patterns. Can't overfit to one perspective!
+                    </div>
+
+                    <!-- Rotation Mode Selection -->
+                    <div class="param-group">
+                        <label class="param-label">Rotation Mode</label>
+                        <p class="param-explanation">How phases rotate between epochs</p>
+                        <div class="rotation-mode-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0;">
+                            <div class="rotation-mode-card active" data-mode="full_cycle" onclick="selectRotationMode('full_cycle')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid var(--funk-orange); text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: bold; color: var(--funk-gold);">Full Cycle</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">0 → π/2 → π → 3π/2</div>
+                                <div style="font-size: 0.65rem; color: var(--funk-orange); margin-top: 4px;">Complete rotation</div>
+                            </div>
+                            <div class="rotation-mode-card" data-mode="alternating" onclick="selectRotationMode('alternating')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: bold; color: var(--funk-gold);">Alternating</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">π/2 ↔ 3π/2</div>
+                                <div style="font-size: 0.65rem; color: var(--groove-teal); margin-top: 4px;">Orthogonal</div>
+                            </div>
+                            <div class="rotation-mode-card" data-mode="opposition" onclick="selectRotationMode('opposition')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: bold; color: var(--funk-gold);">Opposition</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">0 ↔ π</div>
+                                <div style="font-size: 0.65rem; color: var(--info); margin-top: 4px;">Flip-flop</div>
+                            </div>
+                            <div class="rotation-mode-card" data-mode="random" onclick="selectRotationMode('random')" style="cursor: pointer; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 2px solid transparent; text-align: center;">
+                                <div style="font-size: 1.1rem; font-weight: bold; color: var(--funk-gold);">Random</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">? ? ? ?</div>
+                                <div style="font-size: 0.65rem; color: var(--warning); margin-top: 4px;">Stochastic</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Training Parameters -->
+                    <div class="param-group">
+                        <div class="param-header">
+                            <label for="trainer-epochs" class="param-label">Total Epochs</label>
+                            <span class="param-value" id="trainer-epochs-display">100</span>
+                        </div>
+                        <p class="param-explanation">Number of epochs to train (each with rotating phase)</p>
+                        <input type="range" id="trainer-epochs" min="10" max="500" value="100" step="10"
+                            oninput="document.getElementById('trainer-epochs-display').textContent = this.value; previewTrainerSchedule();">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="param-group">
+                            <label class="param-label" for="trainer-batch-size">Batch Size</label>
+                            <input type="number" id="trainer-batch-size" value="32" min="1" max="256" style="width: 100%; padding: 10px;">
+                        </div>
+                        <div class="param-group">
+                            <label class="param-label" for="trainer-lr">Learning Rate</label>
+                            <input type="number" id="trainer-lr" value="0.0001" min="0.000001" max="0.01" step="0.000001" style="width: 100%; padding: 10px;">
+                        </div>
+                    </div>
+
+                    <!-- Schedule Preview -->
+                    <div class="param-group">
+                        <label class="param-label">Schedule Preview</label>
+                        <div id="trainer-schedule-preview" style="margin: 15px 0; padding: 15px; background: var(--bg-primary); border-radius: 8px; border-left: 4px solid var(--funk-gold);">
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; font-family: monospace; font-size: 0.85rem;">
+                                <span class="phase-chip" style="padding: 4px 8px; background: var(--funk-gold); color: var(--bg-primary); border-radius: 4px;">E1: 0</span>
+                                <span class="phase-chip" style="padding: 4px 8px; background: var(--groove-teal); color: var(--bg-primary); border-radius: 4px;">E2: π/2</span>
+                                <span class="phase-chip" style="padding: 4px 8px; background: var(--funk-orange); color: var(--bg-primary); border-radius: 4px;">E3: π</span>
+                                <span class="phase-chip" style="padding: 4px 8px; background: var(--groove-sage); color: var(--bg-primary); border-radius: 4px;">E4: 3π/2</span>
+                                <span style="color: var(--text-muted);">... repeats</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="initializeTrainer()" style="flex: 1;">
+                            Initialize Trainer
+                        </button>
+                        <button class="btn btn-primary" onclick="startRotationalTraining()" id="start-rotational-btn" style="flex: 2;" disabled>
+                            Start Rotational Training
+                        </button>
+                    </div>
+
+                    <!-- Status -->
+                    <div id="trainer-status" style="margin-top: 15px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; display: none;">
+                        <div id="trainer-status-text" style="color: var(--text-muted);"></div>
+                        <div id="trainer-progress" style="margin-top: 10px; display: none;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
+                                <span>Epoch <span id="trainer-current-epoch">0</span> / <span id="trainer-total-epochs">100</span></span>
+                                <span>Phase: <span id="trainer-current-phase" style="color: var(--funk-gold);">0</span></span>
+                            </div>
+                            <div class="progress-bar" style="height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden;">
+                                <div id="trainer-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--funk-gold), var(--funk-orange)); transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- π/2 Dataset Registry Section -->
+            <section class="card pi-registry-section" id="pi-registry-section" aria-labelledby="pi-registry-heading">
+                <div class="collapsible-header" onclick="togglePiRegistry()" role="button" tabindex="0" aria-expanded="false" aria-controls="pi-registry-content">
+                    <h2 id="pi-registry-heading" style="margin: 0;">
+                        π/2 Dataset Registry
+                        <span class="pi-badge">NEW</span>
+                    </h2>
+                    <span class="collapse-icon" id="pi-registry-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="pi-registry-content">
+                    <div class="info-banner pi-info" role="note" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1)); border: 1px solid var(--funk-orange); margin-bottom: 20px;">
+                        <strong>Pre-configured Datasets</strong> - One-click download and π/2 encoding.
+                        Curated datasets for code, music, math, images, and text.
+                    </div>
+
+                    <!-- Filters -->
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <div class="param-group" style="flex: 1; min-width: 200px;">
+                            <label class="param-label" for="registry-category">Category</label>
+                            <select id="registry-category" onchange="filterRegistryDatasets()" style="width: 100%; padding: 10px;">
+                                <option value="all">All Categories</option>
+                                <option value="code">Code</option>
+                                <option value="music">Music</option>
+                                <option value="math">Math</option>
+                                <option value="science">Science</option>
+                                <option value="image">Image</option>
+                                <option value="text">Text</option>
+                                <option value="quantum">Quantum</option>
+                                <option value="multimodal">Multimodal</option>
+                            </select>
+                        </div>
+                        <div class="param-group" style="flex: 1; min-width: 200px;">
+                            <label class="param-label" for="registry-phase">Training Phase</label>
+                            <select id="registry-phase" onchange="filterRegistryDatasets()" style="width: 100%; padding: 10px;">
+                                <option value="all">All Phases</option>
+                                <option value="phase_1">Phase 1 - Raw Patterns</option>
+                                <option value="phase_1.5">Phase 1.5 - Textbooks</option>
+                                <option value="phase_2">Phase 2 - Language</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dataset Grid -->
+                    <div id="registry-datasets" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div class="registry-loading" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+                            Loading datasets...
+                        </div>
+                    </div>
+
+                    <!-- Download Status -->
+                    <div id="registry-download-status" style="margin-top: 15px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; display: none;">
+                        <div id="registry-download-text" style="color: var(--text-muted);"></div>
+                        <div class="progress-bar" style="margin-top: 10px; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden;">
+                            <div id="registry-download-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--funk-gold), var(--groove-teal)); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- π/2 Rotation Tokenizer Section -->
+            <section class="card pi-tokenizer-section" id="pi-tokenizer-section" aria-labelledby="pi-tokenizer-heading">
+                <div class="collapsible-header" onclick="togglePiTokenizer()" role="button" tabindex="0" aria-expanded="false" aria-controls="pi-tokenizer-content">
+                    <h2 id="pi-tokenizer-heading" style="margin: 0;">
+                        π/2 4D Rotation Tokenizer
+                        <span class="pi-badge">NEW</span>
+                    </h2>
+                    <span class="collapse-icon" id="pi-tokenizer-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="pi-tokenizer-content">
+                    <div class="info-banner pi-info" role="note" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1)); border: 1px solid var(--funk-orange); margin-bottom: 20px;">
+                        <strong>4D Rotation Encoding</strong> - Transform tokens into 4 rotational perspectives.
+                        The model learns patterns + rotation function, not independent examples!
+                    </div>
+
+                    <!-- Configuration -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="param-group">
+                            <label class="param-label" for="tokenizer-vocab-size">Vocabulary Size</label>
+                            <p class="param-explanation">Size of your tokenizer vocab</p>
+                            <input type="number" id="tokenizer-vocab-size" value="50257" min="1000" max="200000" style="width: 100%; padding: 10px;">
+                        </div>
+                        <div class="param-group">
+                            <label class="param-label" for="tokenizer-phase-base">Phase Token Base</label>
+                            <p class="param-explanation">Starting ID for phase tokens</p>
+                            <input type="number" id="tokenizer-phase-base" value="50256" min="0" style="width: 100%; padding: 10px;">
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="param-group" style="margin-top: 15px;">
+                        <label class="param-label">Rotation Options</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="tokenizer-rotate-ids" checked>
+                                <span>Rotate Token IDs</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="tokenizer-phase-prefix" checked>
+                                <span>Phase Prefix Token</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="tokenizer-include-meta" checked>
+                                <span>Include Metadata</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Input Selection -->
+                    <div class="param-group" style="margin-top: 20px;">
+                        <label class="param-label">Input Data</label>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="btn btn-secondary" onclick="selectTokenizerFile('tokenized')" id="tokenizer-file-btn" style="flex: 1;">
+                                Select Tokenized File (.jsonl)
+                            </button>
+                            <button class="btn btn-secondary" onclick="selectTokenizerFile('raw')" id="tokenizer-raw-btn" style="flex: 1;">
+                                Select Raw Text File
+                            </button>
+                        </div>
+                        <div id="tokenizer-file-info" style="margin-top: 10px; padding: 10px; background: var(--bg-primary); border-radius: 6px; display: none;">
+                            <span id="tokenizer-file-name" style="color: var(--funk-gold);"></span>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="param-group" style="margin-top: 20px;">
+                        <label class="param-label">Rotation Preview</label>
+                        <p class="param-explanation">See how tokens transform across 4 phases</p>
+                        <div style="margin: 15px 0;">
+                            <input type="text" id="tokenizer-preview-input" placeholder="Enter text to preview rotation..." style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                            <button class="btn btn-secondary" onclick="previewTokenRotation()">Preview Rotation</button>
+                        </div>
+                        <div id="tokenizer-preview-output" style="display: none; margin-top: 15px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                                <div class="phase-preview-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border-top: 3px solid var(--funk-gold);">
+                                    <div style="font-weight: bold; color: var(--funk-gold); margin-bottom: 8px;">Phase 0°</div>
+                                    <div id="preview-phase-0" style="font-family: monospace; font-size: 0.8rem; word-break: break-all;"></div>
+                                </div>
+                                <div class="phase-preview-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border-top: 3px solid var(--groove-teal);">
+                                    <div style="font-weight: bold; color: var(--groove-teal); margin-bottom: 8px;">Phase π/2</div>
+                                    <div id="preview-phase-90" style="font-family: monospace; font-size: 0.8rem; word-break: break-all;"></div>
+                                </div>
+                                <div class="phase-preview-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border-top: 3px solid var(--funk-orange);">
+                                    <div style="font-weight: bold; color: var(--funk-orange); margin-bottom: 8px;">Phase π</div>
+                                    <div id="preview-phase-180" style="font-family: monospace; font-size: 0.8rem; word-break: break-all;"></div>
+                                </div>
+                                <div class="phase-preview-card" style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border-top: 3px solid var(--groove-sage);">
+                                    <div style="font-weight: bold; color: var(--groove-sage); margin-bottom: 8px;">Phase 3π/2</div>
+                                    <div id="preview-phase-270" style="font-family: monospace; font-size: 0.8rem; word-break: break-all;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Process Button -->
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="initializeTokenizer()" style="flex: 1;">
+                            Initialize Tokenizer
+                        </button>
+                        <button class="btn btn-primary" onclick="processTokenizerData()" id="process-tokenizer-btn" style="flex: 2;" disabled>
+                            Process & Rotate Data
+                        </button>
+                    </div>
+
+                    <!-- Status -->
+                    <div id="tokenizer-status" style="margin-top: 15px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; display: none;">
+                        <div id="tokenizer-status-text" style="color: var(--text-muted);"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- π/2 Universal Encoder Section -->
+            <section class="card pi-encoder-section" id="pi-encoder-section" aria-labelledby="pi-encoder-heading">
+                <div class="collapsible-header" onclick="togglePiEncoder()" role="button" tabindex="0" aria-expanded="false" aria-controls="pi-encoder-content">
+                    <h2 id="pi-encoder-heading" style="margin: 0;">
+                        π/2 Universal Encoder
+                        <span class="pi-badge">NEW</span>
+                    </h2>
+                    <span class="collapse-icon" id="pi-encoder-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="pi-encoder-content">
+                    <div class="info-banner pi-info" role="note" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1)); border: 1px solid var(--funk-orange); margin-bottom: 20px;">
+                        <strong>Feed it Anything</strong> - Text, audio, images, video → π/2 rotated tokens.
+                        One encoder. One format. All modalities.
+                    </div>
+
+                    <!-- Modality Selection -->
+                    <div class="param-group">
+                        <label class="param-label">Supported Formats</label>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0;">
+                            <div class="modality-card" style="padding: 15px; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem;">📝</div>
+                                <div style="font-weight: bold; color: var(--funk-gold);">Text</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">.txt .csv .json .jsonl</div>
+                            </div>
+                            <div class="modality-card" style="padding: 15px; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem;">🎵</div>
+                                <div style="font-weight: bold; color: var(--groove-teal);">Audio</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">.wav .mp3 .flac .ogg</div>
+                            </div>
+                            <div class="modality-card" style="padding: 15px; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem;">🖼️</div>
+                                <div style="font-weight: bold; color: var(--funk-orange);">Image</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">.png .jpg .bmp .webp</div>
+                            </div>
+                            <div class="modality-card" style="padding: 15px; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem;">🎬</div>
+                                <div style="font-weight: bold; color: var(--groove-sage);">Video</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">.mp4 .avi .mov .mkv</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audio Settings (Collapsible) -->
+                    <div class="param-group" style="margin-top: 15px;">
+                        <div class="collapsible-header" onclick="toggleEncoderAudio()" style="padding: 10px; background: var(--bg-tertiary); border-radius: 6px; cursor: pointer;">
+                            <span style="font-weight: bold;">🎵 Audio Settings</span>
+                            <span class="collapse-icon" id="encoder-audio-icon" style="float: right;">+</span>
+                        </div>
+                        <div class="collapsible-content" id="encoder-audio-content" style="padding: 15px; background: var(--bg-primary); border-radius: 0 0 6px 6px;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--text-muted);">Sample Rate</label>
+                                    <input type="number" id="encoder-sample-rate" value="22050" min="8000" max="48000" style="width: 100%; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--text-muted);">Chunk (ms)</label>
+                                    <input type="number" id="encoder-chunk-ms" value="25" min="10" max="100" style="width: 100%; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--text-muted);">FFT Size</label>
+                                    <input type="number" id="encoder-n-fft" value="512" min="128" max="2048" step="128" style="width: 100%; padding: 8px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Settings (Collapsible) -->
+                    <div class="param-group" style="margin-top: 10px;">
+                        <div class="collapsible-header" onclick="toggleEncoderImage()" style="padding: 10px; background: var(--bg-tertiary); border-radius: 6px; cursor: pointer;">
+                            <span style="font-weight: bold;">🖼️ Image Settings</span>
+                            <span class="collapse-icon" id="encoder-image-icon" style="float: right;">+</span>
+                        </div>
+                        <div class="collapsible-content" id="encoder-image-content" style="padding: 15px; background: var(--bg-primary); border-radius: 0 0 6px 6px;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--text-muted);">Width</label>
+                                    <input type="number" id="encoder-img-width" value="224" min="32" max="1024" step="32" style="width: 100%; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--text-muted);">Height</label>
+                                    <input type="number" id="encoder-img-height" value="224" min="32" max="1024" step="32" style="width: 100%; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8rem; color: var(--text-muted);">Patch Size</label>
+                                    <input type="number" id="encoder-patch-size" value="16" min="4" max="64" style="width: 100%; padding: 8px;">
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="encoder-use-fft" checked>
+                                    <span>Use FFT-based encoding (vs patch-based)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="param-group" style="margin-top: 20px;">
+                        <label class="param-label">Input Files</label>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="btn btn-secondary" onclick="selectEncoderFile()" style="flex: 1;">
+                                Select Single File
+                            </button>
+                            <button class="btn btn-secondary" onclick="selectEncoderDirectory()" style="flex: 1;">
+                                Select Directory (Batch)
+                            </button>
+                        </div>
+                        <div id="encoder-file-info" style="margin-top: 10px; padding: 10px; background: var(--bg-primary); border-radius: 6px; display: none;">
+                            <span id="encoder-file-name" style="color: var(--funk-gold);"></span>
+                            <span id="encoder-file-type" style="margin-left: 10px; padding: 2px 8px; background: var(--groove-teal); color: white; border-radius: 4px; font-size: 0.75rem;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Output Path -->
+                    <div class="param-group" style="margin-top: 15px;">
+                        <label class="param-label" for="encoder-output">Output Path</label>
+                        <input type="text" id="encoder-output" placeholder="output/encoded_data.jsonl" value="output/pi_encoded.jsonl" style="width: 100%; padding: 10px;">
+                    </div>
+
+                    <!-- Encode Button -->
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="initializeEncoder()" style="flex: 1;">
+                            Initialize Encoder
+                        </button>
+                        <button class="btn btn-primary" onclick="startEncoding()" id="start-encoding-btn" style="flex: 2;" disabled>
+                            Encode to π/2
+                        </button>
+                    </div>
+
+                    <!-- Status & Stats -->
+                    <div id="encoder-status" style="margin-top: 15px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; display: none;">
+                        <div id="encoder-status-text" style="color: var(--text-muted);"></div>
+                        <div id="encoder-stats" style="margin-top: 10px; display: none;">
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; font-size: 0.85rem;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--funk-gold);" id="stat-files">0</div>
+                                    <div style="color: var(--text-muted);">Files</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--groove-teal);" id="stat-text">0</div>
+                                    <div style="color: var(--text-muted);">Text</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--funk-orange);" id="stat-audio">0</div>
+                                    <div style="color: var(--text-muted);">Audio</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--groove-sage);" id="stat-image">0</div>
+                                    <div style="color: var(--text-muted);">Image</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--info);" id="stat-tokens">0</div>
+                                    <div style="color: var(--text-muted);">Tokens</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-bar" style="margin-top: 10px; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden; display: none;" id="encoder-progress-bar">
+                            <div id="encoder-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--funk-gold), var(--groove-teal), var(--funk-orange), var(--groove-sage)); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="card action-section" aria-label="Training controls">
+                <button class="btn btn-primary btn-large" id="start-btn" onclick="startTraining()" aria-describedby="start-help">
+                    Start Training
+                </button>
+                <span id="start-help" class="visually-hidden">Click to begin training with current settings</span>
+                <button class="btn btn-danger btn-large" id="stop-btn" onclick="stopTraining()" style="display: none;" aria-describedby="stop-help">
+                    Stop Training
+                </button>
+                <span id="stop-help" class="visually-hidden">Click to stop the current training session</span>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="card progress-section" id="progress-section" style="display: none;" aria-labelledby="progress-heading" aria-live="polite">
+                <h2 id="progress-heading">Training Progress</h2>
+                <div class="progress-container">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Training progress">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progress-percent" aria-label="Progress percentage">0%</span>
+                        <span id="progress-status" aria-label="Current status">Initializing...</span>
+                    </div>
+                </div>
+
+                <!-- Loss Chart -->
+                <div class="chart-container" id="chart-container" style="margin: 20px 0;">
+                    <h3>Loss Over Time</h3>
+                    <p class="chart-help" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+                        Watch the loss go down! Lower = better. The model is learning when the line trends downward.
+                    </p>
+                    <div class="chart-wrapper" style="position: relative; height: 250px; background: var(--bg-primary); border-radius: 8px; padding: 10px;">
+                        <canvas id="loss-chart"></canvas>
+                    </div>
+                    <div class="chart-controls" style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary btn-small" onclick="toggleChartScale()">Toggle Log Scale</button>
+                        <button class="btn btn-secondary btn-small" onclick="downloadChart()">Download Chart</button>
+                        <span id="chart-stats" style="margin-left: auto; font-size: 0.85rem; color: var(--text-muted);"></span>
+                    </div>
+                </div>
+
+                <div class="log-container">
+                    <h3 id="log-heading">Training Log</h3>
+                    <div class="log-output" id="log-output" role="log" aria-labelledby="log-heading" aria-live="polite">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Training History -->
+            <section class="card history-section" aria-labelledby="history-heading">
+                <div class="collapsible-header" onclick="toggleHistory()" role="button" tabindex="0" aria-expanded="false" aria-controls="history-content">
+                    <h2 id="history-heading" style="margin: 0;">Training History</h2>
+                    <span class="collapse-icon" id="history-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="history-content">
+                    <p class="section-desc">Your previous training runs. Click to load for inference or export.</p>
+                    <div id="history-list" style="max-height: 300px; overflow-y: auto;">
+                        <p style="color: var(--text-muted);">Loading training history...</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="refreshHistory()" style="margin-top: 12px;">Refresh History</button>
+                </div>
+            </section>
+
+            <!-- Model Export -->
+            <section class="card export-section" aria-labelledby="export-heading">
+                <div class="collapsible-header" onclick="toggleExport()" role="button" tabindex="0" aria-expanded="false" aria-controls="export-content">
+                    <h2 id="export-heading" style="margin: 0;">Export Model</h2>
+                    <span class="collapse-icon" id="export-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="export-content">
+                    <p class="section-desc">Export your trained model for use with other tools.</p>
+                    
+                    <div class="export-options" style="display: grid; gap: 16px;">
+                        <!-- Merge LoRA -->
+                        <div class="export-option" style="padding: 16px; background: var(--bg-secondary); border-radius: 8px;">
+                            <h3 style="margin-top: 0; font-size: 1rem;">Merge LoRA Adapter</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Combine LoRA adapter with base model into a single model.</p>
+                            <select id="merge-model-select" class="export-select" style="width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 6px;">
+                                <option value="">-- Select a LoRA model --</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="mergeLoraModel()">Merge LoRA</button>
+                        </div>
+                        
+                        <!-- GGUF Export -->
+                        <div class="export-option" style="padding: 16px; background: var(--bg-secondary); border-radius: 8px;">
+                            <h3 style="margin-top: 0; font-size: 1rem;">Export to GGUF</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Convert to GGUF format for llama.cpp, Ollama, LM Studio, etc.</p>
+                            <select id="gguf-model-select" class="export-select" style="width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 6px;">
+                                <option value="">-- Select a model --</option>
+                            </select>
+                            <select id="gguf-quant-select" style="width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 6px;">
+                                <option value="q4_k_m">Q4_K_M (recommended, balanced)</option>
+                                <option value="q5_k_m">Q5_K_M (higher quality)</option>
+                                <option value="q8_0">Q8_0 (best quality, larger)</option>
+                                <option value="q4_0">Q4_0 (smallest, fastest)</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="exportToGGUF()">Get GGUF Instructions</button>
+                        </div>
+                        
+                        <!-- HuggingFace Upload -->
+                        <div class="export-option" style="padding: 16px; background: var(--bg-secondary); border-radius: 8px;">
+                            <h3 style="margin-top: 0; font-size: 1rem;">Upload to HuggingFace</h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted);">Share your model on the HuggingFace Hub.</p>
+                            <select id="hf-model-select" class="export-select" style="width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 6px;">
+                                <option value="">-- Select a model --</option>
+                            </select>
+                            <input type="text" id="hf-repo-name" placeholder="your-model-name" style="width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 6px; border: 1px solid var(--border-color); box-sizing: border-box;">
+                            <button class="btn btn-primary" onclick="getHFInstructions()">Get Upload Instructions</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inference Playground -->
+            <section class="card playground-section" id="playground-section" aria-labelledby="playground-heading">
+                <div class="collapsible-header" onclick="togglePlayground()" role="button" tabindex="0" aria-expanded="true" aria-controls="playground-content">
+                    <h2 id="playground-heading" style="margin: 0;">Inference Playground</h2>
+                    <span class="collapse-icon" id="playground-main-collapse-icon" aria-hidden="true">-</span>
+                </div>
+                <div class="collapsible-content active" id="playground-content">
+                    <p class="section-desc">Test your trained models! Generate text to see how well they learned.</p>
+
+                    <!-- Model Selection -->
+                <div class="playground-model-select">
+                    <label for="inference-model" class="param-label">Select Trained Model</label>
+                    <div class="model-select-row">
+                        <select id="inference-model" class="inference-select" aria-describedby="model-select-help">
+                            <option value="">-- No models available --</option>
+                        </select>
+                        <button class="btn btn-secondary" id="refresh-models-btn" onclick="refreshModels()" aria-label="Refresh model list">
+                            Refresh
+                        </button>
+                        <button class="btn btn-secondary" id="load-model-btn" onclick="loadSelectedModel()" disabled>
+                            Load Model
+                        </button>
+                        <button class="btn btn-secondary" id="unload-model-btn" onclick="unloadModel()" style="display: none;">
+                            Unload
+                        </button>
+                    </div>
+                    <p class="param-tip" id="model-select-help">Train a model first, then select it here to test it out!</p>
+                    <div id="model-status" class="model-status"></div>
+                </div>
+
+                <!-- Prompt Input -->
+                <div class="playground-prompt">
+                    <label for="inference-prompt" class="param-label">Your Prompt</label>
+                    <textarea
+                        id="inference-prompt"
+                        class="inference-input"
+                        placeholder="Enter your prompt here... The model will continue from where you leave off.
+
+Example: Once upon a time, there was a"
+                        rows="4"
+                    ></textarea>
+                </div>
+
+                <!-- Generation Parameters -->
+                <div class="playground-params">
+                    <div class="collapsible-header" onclick="togglePlaygroundParams()" role="button" tabindex="0" aria-expanded="false" aria-controls="playground-params-content">
+                        <h3>Generation Settings</h3>
+                        <span class="collapse-icon" id="playground-collapse-icon" aria-hidden="true">+</span>
+                    </div>
+                    <div class="collapsible-content" id="playground-params-content">
+                        <div class="params-grid">
+                            <div class="param-group">
+                                <div class="param-header">
+                                    <label for="gen-max-tokens" class="param-label">Max New Tokens</label>
+                                    <span class="param-value" id="gen-max-tokens-display">100</span>
+                                </div>
+                                <p class="param-explanation">How many new words/tokens to generate. More = longer output.</p>
+                                <input type="range" id="gen-max-tokens" min="10" max="500" value="100" step="10"
+                                    oninput="document.getElementById('gen-max-tokens-display').textContent = this.value">
+                            </div>
+
+                            <div class="param-group">
+                                <div class="param-header">
+                                    <label for="gen-temperature" class="param-label">Temperature</label>
+                                    <span class="param-value" id="gen-temperature-display">0.7</span>
+                                </div>
+                                <p class="param-explanation">Creativity level. Low = predictable, High = creative/random.</p>
+                                <input type="range" id="gen-temperature" min="0.1" max="2.0" value="0.7" step="0.1"
+                                    oninput="document.getElementById('gen-temperature-display').textContent = parseFloat(this.value).toFixed(1)">
+                            </div>
+
+                            <div class="param-group">
+                                <div class="param-header">
+                                    <label for="gen-top-p" class="param-label">Top P (Nucleus Sampling)</label>
+                                    <span class="param-value" id="gen-top-p-display">0.9</span>
+                                </div>
+                                <p class="param-explanation">Only consider tokens in the top P probability mass.</p>
+                                <input type="range" id="gen-top-p" min="0.1" max="1.0" value="0.9" step="0.05"
+                                    oninput="document.getElementById('gen-top-p-display').textContent = parseFloat(this.value).toFixed(2)">
+                            </div>
+
+                            <div class="param-group">
+                                <div class="param-header">
+                                    <label for="gen-top-k" class="param-label">Top K</label>
+                                    <span class="param-value" id="gen-top-k-display">50</span>
+                                </div>
+                                <p class="param-explanation">Only consider the top K most likely tokens.</p>
+                                <input type="range" id="gen-top-k" min="1" max="100" value="50" step="1"
+                                    oninput="document.getElementById('gen-top-k-display').textContent = this.value">
+                            </div>
+
+                            <div class="param-group">
+                                <div class="param-header">
+                                    <label for="gen-repetition-penalty" class="param-label">Repetition Penalty</label>
+                                    <span class="param-value" id="gen-repetition-penalty-display">1.1</span>
+                                </div>
+                                <p class="param-explanation">Penalize repeated tokens. Higher = less repetition. Try 1.3-1.5 for looping models.</p>
+                                <input type="range" id="gen-repetition-penalty" min="1.0" max="2.0" value="1.1" step="0.05"
+                                    oninput="document.getElementById('gen-repetition-penalty-display').textContent = parseFloat(this.value).toFixed(2)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <div class="playground-actions">
+                    <button class="btn btn-primary btn-large" id="generate-btn" onclick="generateText()" disabled>
+                        Generate Text
+                    </button>
+                    <button class="btn btn-secondary" id="clear-output-btn" onclick="clearOutput()">
+                        Clear Output
+                    </button>
+                </div>
+
+                    <!-- Output Display -->
+                    <div class="playground-output" id="playground-output-container" style="display: none;">
+                        <h3>Generated Output</h3>
+                        <div class="output-box" id="inference-output" role="region" aria-live="polite">
+                            <!-- Generated text will appear here -->
+                        </div>
+                        <div class="output-stats" id="output-stats"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Tools Section -->
+            <section class="card data-tools-section" aria-labelledby="data-tools-heading">
+                <div class="collapsible-header" onclick="toggleDataTools()" role="button" tabindex="0" aria-expanded="false" aria-controls="data-tools-content">
+                    <h2 id="data-tools-heading" style="margin: 0;">Data Tools</h2>
+                    <span class="collapse-icon" id="data-tools-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="data-tools-content">
+                    <p class="section-desc">Preview, validate, and augment your training data.</p>
+
+                    <div class="data-tools-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                        <button class="btn btn-secondary" onclick="previewData()">Preview Data</button>
+                        <button class="btn btn-secondary" onclick="validateData()">Validate Data</button>
+                        <button class="btn btn-secondary" onclick="augmentData('shuffle')">Augment (Shuffle)</button>
+                        <button class="btn btn-secondary" onclick="augmentData('synonym')">Augment (Synonyms)</button>
+                        <button class="btn btn-secondary" onclick="augmentData('duplicate_vary')">Augment (Variations)</button>
+                    </div>
+
+                    <!-- Validation Results Display -->
+                    <div id="validation-results" style="display: none; padding: 16px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 16px;">
+                        <h3 style="margin-top: 0; font-size: 1rem;">Data Validation Results</h3>
+                        <div id="validation-status" style="margin-bottom: 12px;"></div>
+                        <div id="validation-issues" style="color: var(--danger);"></div>
+                        <div id="validation-suggestions" style="color: var(--info); margin-top: 12px;"></div>
+                    </div>
+
+                    <!-- Preview Modal -->
+                    <div id="data-preview-modal" class="modal">
+                        <div class="modal-content" style="max-width: 800px;">
+                            <button class="close-btn" onclick="closeDataPreview()">&times;</button>
+                            <h2>Data Preview</h2>
+                            <div id="preview-stats" style="margin-bottom: 16px; padding: 12px; background: var(--bg-primary); border-radius: 8px;"></div>
+                            <div id="preview-warnings" style="color: var(--warning); margin-bottom: 16px;"></div>
+                            <div id="preview-examples" style="max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 0.9rem; background: var(--bg-primary); padding: 16px; border-radius: 8px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real-time Training Monitor -->
+            <section class="card monitoring-section" id="monitoring-section" style="display: none;" aria-labelledby="monitoring-heading">
+                <h2 id="monitoring-heading">Training Monitor</h2>
+
+                <div class="monitoring-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <!-- GPU Stats -->
+                    <div class="monitor-card" style="padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                        <h3 style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">GPU Status</h3>
+                        <div style="margin-top: 12px;">
+                            <div>Temp: <span id="gpu-temp" style="font-weight: bold;">--</span></div>
+                            <div>Power: <span id="gpu-power" style="font-weight: bold;">--</span></div>
+                            <div>Util: <span id="gpu-util" style="font-weight: bold;">--</span></div>
+                            <div>Mem: <span id="gpu-mem-used" style="font-weight: bold;">--</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Training Speed -->
+                    <div class="monitor-card" style="padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                        <h3 style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Training Speed</h3>
+                        <div style="margin-top: 12px;">
+                            <div id="train-speed" style="font-size: 1.1rem; font-weight: bold;">-- steps/sec</div>
+                            <div id="train-eta" style="color: var(--text-muted); margin-top: 8px;">ETA: --</div>
+                        </div>
+                    </div>
+
+                    <!-- Cost Estimate -->
+                    <div class="monitor-card" style="padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                        <h3 style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Cost Estimate</h3>
+                        <select id="gpu-type-select" onchange="estimateCost()" style="width: 100%; margin-bottom: 8px; padding: 4px;">
+                            <option value="a100">A100</option>
+                            <option value="v100">V100</option>
+                            <option value="t4">T4</option>
+                            <option value="a10g">A10G</option>
+                            <option value="rtx3090">RTX 3090</option>
+                        </select>
+                        <div id="cost-estimate" style="font-size: 0.9rem;">Select GPU type</div>
+                    </div>
+
+                    <!-- Chart Tools -->
+                    <div class="monitor-card" style="padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                        <h3 style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Chart Tools</h3>
+                        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn btn-small btn-secondary" onclick="saveCurrentRunData()">Save This Run</button>
+                            <button class="btn btn-small btn-secondary" onclick="showComparisonModal()">Compare Runs</button>
+                            <button class="btn btn-small btn-secondary" onclick="exportChartData()">Export Data</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Inference Section -->
+            <section class="card advanced-inference-section" aria-labelledby="adv-inference-heading">
+                <div class="collapsible-header" onclick="toggleAdvancedInference()" role="button" tabindex="0" aria-expanded="false" aria-controls="adv-inference-content">
+                    <h2 id="adv-inference-heading" style="margin: 0;">Advanced Inference</h2>
+                    <span class="collapse-icon" id="adv-inference-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="adv-inference-content">
+                    <div class="inference-tabs" style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color);">
+                    <button class="tab-btn active" onclick="switchInferenceTab('chat')">Chat Mode</button>
+                    <button class="tab-btn" onclick="switchInferenceTab('batch')">Batch Generate</button>
+                    <button class="tab-btn" onclick="switchInferenceTab('compare')">Compare Outputs</button>
+                    <button class="tab-btn" onclick="switchInferenceTab('presets')">Presets</button>
+                </div>
+
+                <!-- Chat Mode Tab -->
+                <div id="chat-tab" class="inference-tab">
+                    <div class="chat-container" style="border: 1px solid var(--border-color); border-radius: 8px; height: 400px; display: flex; flex-direction: column;">
+                        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 16px;"></div>
+                        <div class="chat-input-area" style="padding: 12px; border-top: 1px solid var(--border-color); display: flex; gap: 8px;">
+                            <input type="text" id="chat-input" placeholder="Type your message..." style="flex: 1; padding: 8px; border-radius: 6px;" onkeypress="if(event.key==='Enter')sendChatMessage()">
+                            <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+                            <button class="btn btn-secondary" onclick="clearChat()">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Generate Tab -->
+                <div id="batch-tab" class="inference-tab" style="display: none;">
+                    <div style="margin-bottom: 16px;">
+                        <label class="param-label">Enter prompts (one per line):</label>
+                        <textarea id="batch-prompts" rows="8" style="width: 100%; padding: 12px; border-radius: 8px; font-family: monospace;" placeholder="First prompt here&#10;Second prompt here&#10;Third prompt here"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="batchGenerate()">Generate All</button>
+                    <div id="batch-results" style="margin-top: 20px; display: none;">
+                        <h3>Results:</h3>
+                        <div id="batch-results-list" style="max-height: 400px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+
+                <!-- Compare Outputs Tab -->
+                <div id="compare-tab" class="inference-tab" style="display: none;">
+                    <div style="margin-bottom: 16px;">
+                        <label class="param-label">Prompt to test:</label>
+                        <textarea id="compare-prompt" rows="3" style="width: 100%; padding: 12px; border-radius: 8px;" placeholder="Enter a prompt to generate with different settings..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="compareGenerations()">Compare Outputs</button>
+                    <div id="comparison-results" style="margin-top: 20px; display: none;">
+                        <h3>Comparison Results:</h3>
+                        <div id="comparison-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;"></div>
+                    </div>
+                </div>
+
+                <!-- Presets Tab -->
+                <div id="presets-tab" class="inference-tab" style="display: none;">
+                    <div class="presets-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div class="preset-card" onclick="applyInferencePreset('creative')" style="cursor: pointer; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <h3 style="margin-top: 0;">Creative</h3>
+                            <p style="font-size: 0.85rem;">High creativity, surprising outputs</p>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Temp: 1.2 | Top-p: 0.95</div>
+                        </div>
+                        <div class="preset-card" onclick="applyInferencePreset('balanced')" style="cursor: pointer; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <h3 style="margin-top: 0;">Balanced</h3>
+                            <p style="font-size: 0.85rem;">Good creativity & coherence</p>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Temp: 0.7 | Top-p: 0.9</div>
+                        </div>
+                        <div class="preset-card" onclick="applyInferencePreset('precise')" style="cursor: pointer; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <h3 style="margin-top: 0;">Precise</h3>
+                            <p style="font-size: 0.85rem;">Predictable, coherent outputs</p>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Temp: 0.3 | Top-p: 0.7</div>
+                        </div>
+                        <div class="preset-card" onclick="applyInferencePreset('deterministic')" style="cursor: pointer; padding: 16px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <h3 style="margin-top: 0;">Deterministic</h3>
+                            <p style="font-size: 0.85rem;">Same output every time</p>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Greedy decoding</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Autonomous Mind Section -->
+            <section class="card mind-section" id="mind-section" aria-labelledby="mind-heading">
+                <div class="collapsible-header" onclick="toggleMind()" role="button" tabindex="0" aria-expanded="false" aria-controls="mind-content">
+                    <h2 id="mind-heading" style="margin: 0;">
+                        Autonomous Mind
+                        <span class="pi-badge" style="background: linear-gradient(135deg, #7c3f4c 0%, #2a9d8f 100%);">EXPERIMENTAL</span>
+                    </h2>
+                    <span class="collapse-icon" id="mind-collapse-icon" aria-hidden="true">+</span>
+                </div>
+                <div class="collapsible-content" id="mind-content">
+                    <div class="info-banner" role="note" style="background: linear-gradient(135deg, rgba(124, 63, 76, 0.2), rgba(42, 157, 143, 0.2)); border: 1px solid var(--groove-plum); margin-bottom: 20px;">
+                        <strong>Continuous Cognition</strong> - A mind that thinks even when you're not asking.
+                        Not a chatbot. A process that exists.
+                    </div>
+
+                    <!-- Model Selection -->
+                    <div class="param-group">
+                        <label class="param-label" for="mind-model-select">Model</label>
+                        <select id="mind-model-select" style="width: 100%; padding: 10px;">
+                            <option value="">-- Select trained model --</option>
+                        </select>
+                    </div>
+
+                    <!-- Mind Mode -->
+                    <div class="param-group">
+                        <div class="param-header">
+                            <label for="mind-mode-select" class="param-label">Mode</label>
+                        </div>
+                        <p class="param-explanation">How thoughts are surfaced</p>
+                        <select id="mind-mode-select" class="param-select" onchange="updateMindModeDescription()">
+                            <option value="timer">Timer (thoughts every N seconds)</option>
+                            <option value="threshold">Threshold (thoughts when crystallized)</option>
+                        </select>
+                        <p class="param-explanation" id="mind-mode-description" style="margin-top: 8px; font-style: italic; color: var(--text-muted);">
+                            Timer mode: generates thoughts on a schedule. Simple but artificial.
+                        </p>
+                    </div>
+
+                    <!-- Think Interval (only visible in timer mode) -->
+                    <div class="param-group" id="mind-interval-group">
+                        <div class="param-header">
+                            <label for="mind-interval" class="param-label">Think Interval</label>
+                            <span class="param-value" id="mind-interval-display">3.0s</span>
+                        </div>
+                        <p class="param-explanation">Time between thoughts (lower = more active)</p>
+                        <input type="range" id="mind-interval" min="1" max="10" value="3" step="0.5"
+                            oninput="document.getElementById('mind-interval-display').textContent = this.value + 's'">
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div style="display: flex; gap: 12px; margin: 20px 0;">
+                        <button class="btn btn-primary" onclick="awakenMind()" id="awaken-btn" style="flex: 1;">
+                            Awaken
+                        </button>
+                        <button class="btn btn-secondary" onclick="pauseMind()" id="pause-btn" style="flex: 1;" disabled>
+                            Pause
+                        </button>
+                        <button class="btn btn-danger" onclick="stopMind()" id="stop-mind-btn" style="flex: 1;" disabled>
+                            Stop
+                        </button>
+                    </div>
+
+                    <!-- Mind State Display -->
+                    <div id="mind-state-display" style="display: none;">
+                        <!-- Status Bar -->
+                        <div style="display: flex; gap: 15px; margin-bottom: 15px; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">STATUS</div>
+                                <div id="mind-status" style="font-weight: bold; color: var(--groove-teal);">Dormant</div>
+                            </div>
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">FOCUS</div>
+                                <div id="mind-focus" style="font-weight: bold; color: var(--funk-gold);">-</div>
+                            </div>
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">MOOD</div>
+                                <div id="mind-mood" style="font-size: 1.5rem;">😐</div>
+                            </div>
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">AROUSAL</div>
+                                <div id="mind-arousal" style="font-weight: bold;">0.5</div>
+                            </div>
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">THOUGHTS</div>
+                                <div id="mind-thought-count" style="font-weight: bold; color: var(--funk-orange);">0</div>
+                            </div>
+                        </div>
+
+                        <!-- Thought Stream -->
+                        <div class="param-group">
+                            <label class="param-label">Thought Stream</label>
+                            <div id="thought-stream" style="height: 300px; overflow-y: auto; padding: 15px; background: var(--bg-primary); border-radius: 8px; font-family: 'Kalam', cursive; border: 1px solid var(--border-color);">
+                                <div style="color: var(--text-muted); font-style: italic;">Waiting for thoughts...</div>
+                            </div>
+                        </div>
+
+                        <!-- Current Thought (highlighted) -->
+                        <div id="current-thought-box" style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, rgba(124, 63, 76, 0.3), rgba(42, 157, 143, 0.3)); border-radius: 8px; border-left: 4px solid var(--groove-plum); display: none;">
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">CURRENT THOUGHT</div>
+                            <div id="current-thought-text" style="font-size: 1.1rem;"></div>
+                            <div id="thought-alternatives" style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);"></div>
+                        </div>
+
+                        <!-- Memory Display -->
+                        <div class="param-group">
+                            <div class="collapsible-header" onclick="toggleMindMemories()" style="padding: 10px; background: var(--bg-tertiary); border-radius: 6px; cursor: pointer;">
+                                <span style="font-weight: bold;">Memories (<span id="memory-count">0</span>)</span>
+                                <span class="collapse-icon" id="mind-memories-icon" style="float: right;">+</span>
+                            </div>
+                            <div class="collapsible-content" id="mind-memories-content" style="padding: 15px; background: var(--bg-primary); border-radius: 0 0 6px 6px;">
+                                <div id="memories-list" style="color: var(--text-muted); font-style: italic;">No memories yet...</div>
+                            </div>
+                        </div>
+
+                        <!-- Inject Input -->
+                        <div class="param-group" style="margin-top: 15px;">
+                            <label class="param-label">Inject Stimulus</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="mind-inject-input" placeholder="Say something to the mind..." style="flex: 1; padding: 10px;">
+                                <button class="btn btn-secondary" onclick="injectToMind()">Inject</button>
+                            </div>
+                        </div>
+
+                        <!-- Query Mind -->
+                        <div class="param-group" style="margin-top: 10px;">
+                            <label class="param-label">Query Mind</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="mind-query-input" placeholder="Ask the mind a question..." style="flex: 1; padding: 10px;">
+                                <button class="btn btn-primary" onclick="queryMind()">Ask</button>
+                            </div>
+                            <div id="mind-query-response" style="margin-top: 10px; padding: 12px; background: var(--bg-tertiary); border-radius: 6px; display: none;"></div>
+                        </div>
+
+                        <!-- Neural State (Advanced) -->
+                        <div class="param-group" style="margin-top: 15px;">
+                            <div class="collapsible-header" onclick="toggleNeuralState()" style="padding: 10px; background: var(--bg-tertiary); border-radius: 6px; cursor: pointer;">
+                                <span style="font-weight: bold;">Neural State</span>
+                                <span class="collapse-icon" id="neural-state-icon" style="float: right;">+</span>
+                            </div>
+                            <div class="collapsible-content" id="neural-state-content" style="padding: 15px; background: var(--bg-primary); border-radius: 0 0 6px 6px;">
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; font-family: monospace; font-size: 0.85rem;">
+                                    <div>
+                                        <div style="color: var(--text-muted);">Attention Entropy</div>
+                                        <div id="neural-entropy" style="font-weight: bold;">-</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-muted);">Hidden State Norm</div>
+                                        <div id="neural-norm" style="font-weight: bold;">-</div>
+                                    </div>
+                                    <div>
+                                        <div style="color: var(--text-muted);">KV Cache Layers</div>
+                                        <div id="neural-cache" style="font-weight: bold;">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chart Comparison Modal -->
+            <div id="chart-comparison-modal" class="modal">
+                <div class="modal-content" style="max-width: 900px;">
+                    <button class="close-btn" onclick="closeComparisonModal()">&times;</button>
+                    <h2>Compare Training Runs</h2>
+                    <div style="margin-bottom: 20px;">
+                        <h3>Select runs to compare:</h3>
+                        <div id="run-selection-list" style="max-height: 200px; overflow-y: auto; padding: 12px; background: var(--bg-primary); border-radius: 8px;"></div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                        <button class="btn btn-primary" onclick="compareTrainingRuns()">Generate Comparison</button>
+                        <button class="btn btn-secondary" onclick="clearSavedRuns()">Clear All</button>
+                    </div>
+                    <div id="comparison-chart-container" style="display: none;">
+                        <img id="comparison-chart" style="width: 100%; border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer" role="contentinfo">
+            <p>Made for humans who want to train AI without reading 50 papers first.</p>
+            <p class="footer-links">
+                <a href="https://github.com/Ninja1232123/AI-Training-For-DumDums" target="_blank" rel="noopener noreferrer">GitHub</a> |
+                <a href="#" onclick="showGlossary(); return false;">Glossary of Terms</a> |
+                <a href="#" onclick="showHelp(); return false;">Help</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Glossary Modal -->
+    <div class="modal" id="glossary-modal" role="dialog" aria-labelledby="glossary-title" aria-hidden="true">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeGlossary()" aria-label="Close glossary">&times;</button>
+            <h2 id="glossary-title">AI Training Glossary</h2>
+            <div class="glossary-content">
+                <dl>
+                    <dt>Epoch</dt>
+                    <dd>One complete pass through your entire training dataset. If you have 100 examples and train for 3 epochs, the model sees each example 3 times.</dd>
+
+                    <dt>Batch Size</dt>
+                    <dd>How many examples the model looks at before updating itself. Bigger = faster training but needs more memory.</dd>
+
+                    <dt>Learning Rate</dt>
+                    <dd>How big of steps the model takes when learning. Too big = chaos. Too small = takes forever.</dd>
+
+                    <dt>Loss</dt>
+                    <dd>A number showing how wrong the model is. Lower = better. You want to see this go down during training!</dd>
+
+                    <dt>Overfitting</dt>
+                    <dd>When the model memorizes your training data instead of learning patterns. Like a student who memorizes answers but can't solve new problems.</dd>
+
+                    <dt>Token</dt>
+                    <dd>A piece of text, roughly a word or part of a word. "Hello world" might be 2 tokens, "unbelievable" might be 3.</dd>
+
+                    <dt>Fine-tuning</dt>
+                    <dd>Taking a pre-trained model and training it more on your specific data. Much faster than training from scratch!</dd>
+
+                    <dt>LoRA</dt>
+                    <dd>Low-Rank Adaptation. A trick to train models efficiently by only updating small adapter layers instead of the whole model.</dd>
+
+                    <dt>GPU</dt>
+                    <dd>Graphics Processing Unit. These are way faster at AI training than regular CPUs. NVIDIA GPUs are most common for AI.</dd>
+
+                    <dt>VRAM</dt>
+                    <dd>Video RAM - memory on your GPU. Bigger models need more VRAM. Running out = crashes!</dd>
+
+                    <dt>Checkpoint</dt>
+                    <dd>A saved snapshot of your model during training. Useful if something crashes - you can resume from the checkpoint.</dd>
+
+                    <dt>Warmup</dt>
+                    <dd>Starting with small learning steps, then gradually increasing. Helps the model not make wild changes early on.</dd>
+
+                    <dt>Weight Decay</dt>
+                    <dd>A technique to prevent overfitting by gently pushing model weights toward zero. Like a "don't go too extreme" force.</dd>
+
+                    <dt>FP16 / Half Precision</dt>
+                    <dd>Using 16-bit numbers instead of 32-bit. Nearly 2x faster with almost no quality loss. Most modern GPUs support this.</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="help-modal" role="dialog" aria-labelledby="help-title" aria-hidden="true">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeHelp()" aria-label="Close help">&times;</button>
+            <h2 id="help-title">Quick Start Guide</h2>
+            <div class="help-guide">
+                <h3>Step 1: Prepare Your Data</h3>
+                <p>Paste your training text into the "Training Data" box. This could be:</p>
+                <ul>
+                    <li>Conversations you want the AI to mimic</li>
+                    <li>Writing samples in a certain style</li>
+                    <li>Examples of the output you want</li>
+                </ul>
+
+                <h3>Step 2: Choose a Preset (or customize)</h3>
+                <p>If you're not sure what settings to use, start with a preset:</p>
+                <ul>
+                    <li><strong>Quick Test:</strong> Just want to see if it works? Use this.</li>
+                    <li><strong>Balanced:</strong> Good for most cases.</li>
+                    <li><strong>Low Memory:</strong> Computer struggling? Try this.</li>
+                </ul>
+
+                <h3>Step 3: Start Training</h3>
+                <p>Click "Start Training" and watch the progress. The "loss" number should go down over time - that means it's learning!</p>
+
+                <h3>Step 4: Use Your Model</h3>
+                <p>When training finishes, your model is saved to the <code>output/</code> folder. You can load it with the Transformers library:</p>
+                <pre>from transformers import AutoModelForCausalLM, AutoTokenizer
+model = AutoModelForCausalLM.from_pretrained("./output/[timestamp]/final")
+tokenizer = AutoTokenizer.from_pretrained("./output/[timestamp]/final")</pre>
+
+                <h3>Common Issues</h3>
+                <ul>
+                    <li><strong>"Out of memory":</strong> Reduce batch size or max length, or enable LoRA.</li>
+                    <li><strong>"Loss not decreasing":</strong> Try a higher learning rate or more epochs.</li>
+                    <li><strong>"Loss exploding (NaN)":</strong> Learning rate too high! Lower it.</li>
+                </ul>
+
+                <h3>Keyboard Shortcuts</h3>
+                <ul>
+                    <li><strong>Escape:</strong> Close any open modal</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/power_user.js"></script>
+    <script src="/static/js/pi_quant.js"></script>
+    <script src="/static/js/pi_features.js"></script>
+    <script src="/static/js/autonomous_mind.js"></script>
+
+    <!-- Additional Feature Scripts -->
+    <script>
+    // Theme Toggle
+    (function initTheme() {
+        const toggle = document.getElementById('theme-toggle');
+        const icon = document.getElementById('theme-icon');
+        const savedTheme = localStorage.getItem('theme');
+
+        // Apply saved theme or default to dark
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            icon.textContent = '🌙';
+        }
+
+        toggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            icon.textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
+    })();
+
+    // Custom Presets (Save/Load)
+    const CUSTOM_PRESETS_KEY = 'ai_training_custom_presets';
+
+    function getCustomPresets() {
+        try {
+            return JSON.parse(localStorage.getItem(CUSTOM_PRESETS_KEY) || '{}');
+        } catch { return {}; }
+    }
+
+    function saveCustomPresets(presets) {
+        localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(presets));
+    }
+
+    function showSavePresetModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.id = 'save-preset-modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <button class="close-btn" onclick="closeSavePresetModal()">&times;</button>
+                <h2>Save Custom Preset</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Save your current settings for later use.</p>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">Preset Name</label>
+                    <input type="text" id="preset-name-input" placeholder="My Custom Preset"
+                           style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">Description (optional)</label>
+                    <input type="text" id="preset-desc-input" placeholder="Brief description..."
+                           style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary);">
+                </div>
+                <button class="btn btn-primary" onclick="saveCurrentAsPreset()" style="width: 100%;">Save Preset</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('preset-name-input').focus();
+    }
+
+    function closeSavePresetModal() {
+        const modal = document.getElementById('save-preset-modal');
+        if (modal) modal.remove();
+    }
+
+    function saveCurrentAsPreset() {
+        const name = document.getElementById('preset-name-input')?.value?.trim();
+        const desc = document.getElementById('preset-desc-input')?.value?.trim() || '';
+
+        if (!name) {
+            toast.warning('Please enter a preset name');
+            return;
+        }
+
+        // Gather current settings from state
+        const settings = state?.config || {};
+
+        const presets = getCustomPresets();
+        const key = 'custom_' + Date.now();
+        presets[key] = {
+            name: name,
+            description: desc,
+            settings: { ...settings },
+            created: new Date().toISOString()
+        };
+
+        saveCustomPresets(presets);
+        toast.success(`Preset "${name}" saved!`);
+        closeSavePresetModal();
+        renderCustomPresets();
+    }
+
+    function showLoadPresetModal() {
+        const presets = getCustomPresets();
+        const presetList = Object.entries(presets);
+
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.id = 'load-preset-modal';
+        modal.style.display = 'flex';
+
+        let presetsHtml = '';
+        if (presetList.length === 0) {
+            presetsHtml = '<p style="color: var(--text-muted); text-align: center;">No custom presets saved yet.</p>';
+        } else {
+            presetsHtml = presetList.map(([key, preset]) => `
+                <div class="preset-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="flex: 1;">
+                        <strong style="color: var(--text-primary);">${escapeHtml(preset.name)}</strong>
+                        ${preset.description ? `<p style="color: var(--text-muted); font-size: 0.9em; margin: 4px 0 0 0;">${escapeHtml(preset.description)}</p>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-primary btn-sm" onclick="loadCustomPreset('${key}')" style="padding: 6px 12px;">Load</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCustomPreset('${key}')" style="padding: 6px 12px; background: var(--danger);">×</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <button class="close-btn" onclick="closeLoadPresetModal()">&times;</button>
+                <h2>Load Custom Preset</h2>
+                <div style="margin: 20px 0; max-height: 400px; overflow-y: auto;">
+                    ${presetsHtml}
+                </div>
+                <button class="btn btn-secondary" onclick="closeLoadPresetModal()" style="width: 100%;">Cancel</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    function closeLoadPresetModal() {
+        const modal = document.getElementById('load-preset-modal');
+        if (modal) modal.remove();
+    }
+
+    function loadCustomPreset(key) {
+        const presets = getCustomPresets();
+        const preset = presets[key];
+        if (!preset) return;
+
+        // Apply settings to state
+        Object.entries(preset.settings).forEach(([k, v]) => {
+            if (state && state.config) {
+                state.config[k] = v;
+            }
+            // Update UI elements
+            const el = document.getElementById(k);
+            if (el) {
+                if (el.type === 'checkbox') {
+                    el.checked = v;
+                } else {
+                    el.value = v;
+                }
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+
+        toast.success(`Loaded preset "${preset.name}"`);
+        closeLoadPresetModal();
+    }
+
+    function deleteCustomPreset(key) {
+        const presets = getCustomPresets();
+        const name = presets[key]?.name || 'preset';
+        if (confirm(`Delete preset "${name}"?`)) {
+            delete presets[key];
+            saveCustomPresets(presets);
+            toast.info(`Deleted "${name}"`);
+            closeLoadPresetModal();
+            showLoadPresetModal(); // Refresh
+        }
+    }
+
+    function renderCustomPresets() {
+        // Add custom preset buttons to the presets section if not present
+        const container = document.getElementById('presets-container');
+        if (!container) return;
+
+        let customBtns = document.getElementById('custom-preset-btns');
+        if (!customBtns) {
+            customBtns = document.createElement('div');
+            customBtns.id = 'custom-preset-btns';
+            customBtns.style.cssText = 'display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);';
+            customBtns.innerHTML = `
+                <button class="btn btn-secondary" onclick="showSavePresetModal()" style="flex: 1;">💾 Save Current</button>
+                <button class="btn btn-secondary" onclick="showLoadPresetModal()" style="flex: 1;">📂 Load Custom</button>
+            `;
+            container.parentNode.insertBefore(customBtns, container.nextSibling);
+        }
+    }
+
+    // Initialize custom presets UI on load
+    setTimeout(renderCustomPresets, 500);
+
+    // Data Processing Functions
+    async function previewData() {
+        const textarea = document.getElementById('training-data');
+        const format = document.getElementById('data_format')?.value || 'completion';
+
+        if (!textarea?.value?.trim()) {
+            toast.warning('Enter training data first');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/data/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: textarea.value,
+                    n_examples: 5,
+                    format: format
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showDataPreviewModal(data);
+            } else {
+                toast.error(data.error || 'Preview failed');
+            }
+        } catch (error) {
+            console.error('Preview error:', error);
+            toast.error('Failed to preview data');
+        }
+    }
+
+    async function validateData() {
+        const textarea = document.getElementById('training-data');
+        const format = document.getElementById('data_format')?.value || 'completion';
+
+        if (!textarea?.value?.trim()) {
+            toast.warning('Enter training data first');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/data/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: textarea.value,
+                    format: format
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showValidationResults(data);
+            } else {
+                toast.error(data.error || 'Validation failed');
+            }
+        } catch (error) {
+            console.error('Validation error:', error);
+            toast.error('Failed to validate data');
+        }
+    }
+
+    async function augmentData(type = 'shuffle') {
+        const textarea = document.getElementById('training-data');
+
+        if (!textarea?.value?.trim()) {
+            toast.warning('Enter training data first');
+            return;
+        }
+
+        toast.info(`Augmenting data with ${type} method...`);
+
+        try {
+            const response = await fetch('/api/data/augment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: textarea.value,
+                    type: type,
+                    strength: 0.3
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                textarea.value = data.augmented_text;
+                if (typeof updateDataStats === 'function') updateDataStats();
+                toast.success(`Data augmented: ${data.original_count} → ${data.augmented_count} examples`);
+            } else {
+                toast.error(data.error || 'Augmentation failed');
+            }
+        } catch (error) {
+            console.error('Augmentation error:', error);
+            toast.error('Failed to augment data');
+        }
+    }
+
+    function showValidationResults(data) {
+        const resultsDiv = document.getElementById('validation-results');
+        const statusDiv = document.getElementById('validation-status');
+        const issuesDiv = document.getElementById('validation-issues');
+        const suggestionsDiv = document.getElementById('validation-suggestions');
+
+        resultsDiv.style.display = 'block';
+
+        let statusEmoji = 'OK';
+        let statusColor = 'var(--success)';
+        if (data.status === 'warning') {
+            statusEmoji = 'WARNING';
+            statusColor = 'var(--warning)';
+        } else if (data.status === 'critical') {
+            statusEmoji = 'CRITICAL';
+            statusColor = 'var(--danger)';
+        }
+
+        statusDiv.innerHTML = `<span style="color: ${statusColor}; font-size: 1.2rem; font-weight: bold;">${statusEmoji}</span>`;
+
+        if (data.issues && data.issues.length > 0) {
+            issuesDiv.innerHTML = '<strong>Issues Found:</strong><ul>' +
+                data.issues.map(issue => `<li>${issue}</li>`).join('') + '</ul>';
+        } else {
+            issuesDiv.innerHTML = '<p style="color: var(--success);">No issues found!</p>';
+        }
+
+        if (data.suggestions && data.suggestions.length > 0) {
+            suggestionsDiv.innerHTML = '<strong>Suggestions:</strong><ul>' +
+                data.suggestions.map(sug => `<li>${sug}</li>`).join('') + '</ul>';
+        } else {
+            suggestionsDiv.innerHTML = '';
+        }
+    }
+
+    function showDataPreviewModal(data) {
+        const modal = document.getElementById('data-preview-modal');
+        const statsDiv = document.getElementById('preview-stats');
+        const warningsDiv = document.getElementById('preview-warnings');
+        const examplesDiv = document.getElementById('preview-examples');
+
+        statsDiv.innerHTML = `
+            <strong>Data Statistics:</strong><br>
+            Total Examples: ${data.total_examples}<br>
+            Total Words: ${data.statistics.total_words}<br>
+            Unique Words: ${data.statistics.unique_words}<br>
+            Avg Line Length: ${data.statistics.avg_line_length} chars<br>
+            Est. Tokens: ~${data.statistics.estimated_tokens}
+        `;
+
+        if (data.warnings && data.warnings.length > 0) {
+            warningsDiv.innerHTML = '<strong>Warnings:</strong><br>' + data.warnings.join('<br>');
+        } else {
+            warningsDiv.innerHTML = '';
+        }
+
+        examplesDiv.innerHTML = '<strong>Preview (first 5 examples):</strong><br><br>' +
+            data.preview.map((ex, i) => `<div style="margin-bottom: 16px; padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
+                <strong>Example ${i + 1}:</strong><br>${escapeHtml(ex)}
+            </div>`).join('');
+
+        modal.style.display = 'flex';
+    }
+
+    function closeDataPreview() {
+        document.getElementById('data-preview-modal').style.display = 'none';
+    }
+
+    // Monitoring Functions
+    let monitoringInterval = null;
+
+    function startMonitoring() {
+        if (monitoringInterval) return;
+        document.getElementById('monitoring-section').style.display = 'block';
+
+        monitoringInterval = setInterval(async () => {
+            await updateGPUStats();
+            await updateTrainingSpeed();
+        }, 2000);
+    }
+
+    function stopMonitoring() {
+        if (monitoringInterval) {
+            clearInterval(monitoringInterval);
+            monitoringInterval = null;
+        }
+    }
+
+    async function updateGPUStats() {
+        try {
+            const response = await fetch('/api/monitoring/gpu');
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('gpu-temp').textContent = data.temperature || 'N/A';
+                document.getElementById('gpu-power').textContent = data.power_draw || 'N/A';
+                document.getElementById('gpu-util').textContent = data.gpu_utilization || 'N/A';
+                document.getElementById('gpu-mem-used').textContent = data.memory_used || 'N/A';
+            }
+        } catch (error) {
+            console.log('GPU stats unavailable');
+        }
+    }
+
+    async function updateTrainingSpeed() {
+        try {
+            const response = await fetch('/api/monitoring/training-speed');
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('train-speed').textContent =
+                    `${data.steps_per_second} steps/sec`;
+                document.getElementById('train-eta').textContent =
+                    `ETA: ${data.estimated_time_remaining}`;
+            }
+        } catch (error) {
+            console.log('Training speed unavailable');
+        }
+    }
+
+    async function estimateCost() {
+        const gpuType = document.getElementById('gpu-type-select')?.value || 'a100';
+
+        try {
+            const response = await fetch(`/api/monitoring/cost-estimate?gpu_type=${gpuType}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('cost-estimate').innerHTML = `
+                    Rate: ${data.cost_per_hour}/hour<br>
+                    Current: ${data.current_cost || '$0.00'}<br>
+                    Est. Total: ${data.estimated_total_cost || 'N/A'}
+                `;
+            }
+        } catch (error) {
+            console.error('Cost estimation failed:', error);
+        }
+    }
+
+    // Chat & Inference Functions
+    let chatSessionId = 'default';
+
+    async function sendChatMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input?.value?.trim();
+
+        if (!message) {
+            toast.warning('Enter a message');
+            return;
+        }
+
+        addChatMessage('user', message);
+        input.value = '';
+
+        try {
+            const response = await fetch('/api/inference/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: chatSessionId,
+                    message: message,
+                    clear_history: false
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                addChatMessage('assistant', data.response);
+            } else {
+                toast.error(data.error || 'Chat failed');
+            }
+        } catch (error) {
+            console.error('Chat error:', error);
+            toast.error('Failed to send message');
+        }
+    }
+
+    function addChatMessage(role, content) {
+        const chatContainer = document.getElementById('chat-messages');
+        if (!chatContainer) return;
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message chat-${role}`;
+        messageDiv.style.cssText = `margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; ${role === 'user' ? 'background: var(--primary); color: white; margin-left: 20%;' : 'background: var(--bg-tertiary); margin-right: 20%;'}`;
+        messageDiv.innerHTML = `
+            <div style="font-weight: bold; font-size: 0.85rem; margin-bottom: 4px; opacity: 0.8;">${role === 'user' ? 'You' : 'AI'}</div>
+            <div>${escapeHtml(content)}</div>
+        `;
+
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function clearChat() {
+        document.getElementById('chat-messages').innerHTML = '';
+    }
+
+    async function batchGenerate() {
+        const promptsText = document.getElementById('batch-prompts')?.value;
+
+        if (!promptsText?.trim()) {
+            toast.warning('Enter prompts (one per line)');
+            return;
+        }
+
+        const prompts = promptsText.split('\n').filter(p => p.trim());
+        toast.info(`Generating ${prompts.length} responses...`);
+
+        try {
+            const response = await fetch('/api/inference/batch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompts: prompts,
+                    params: { max_new_tokens: 100, temperature: 0.7 }
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showBatchResults(data.results);
+                toast.success(`Generated ${data.processed} responses`);
+            } else {
+                toast.error(data.error || 'Batch generation failed');
+            }
+        } catch (error) {
+            console.error('Batch error:', error);
+            toast.error('Failed to generate batch');
+        }
+    }
+
+    function showBatchResults(results) {
+        const container = document.getElementById('batch-results');
+        const list = document.getElementById('batch-results-list');
+
+        container.style.display = 'block';
+        list.innerHTML = results.map(r => `
+            <div style="margin-bottom: 16px; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                <div style="font-weight: bold; color: var(--primary);">Prompt ${r.index + 1}:</div>
+                <div style="font-size: 0.9rem; color: var(--text-muted); margin: 4px 0;">${escapeHtml(r.prompt)}</div>
+                <div style="margin-top: 8px;">${r.status === 'success' ? escapeHtml(r.response) : `<span style="color: var(--danger);">Error: ${r.error}</span>`}</div>
+            </div>
+        `).join('');
+    }
+
+    async function compareGenerations() {
+        const prompt = document.getElementById('compare-prompt')?.value;
+
+        if (!prompt?.trim()) {
+            toast.warning('Enter a prompt');
+            return;
+        }
+
+        toast.info('Generating comparisons...');
+
+        try {
+            const response = await fetch('/api/inference/compare', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    configs: [
+                        { name: 'Conservative', temperature: 0.3 },
+                        { name: 'Balanced', temperature: 0.7 },
+                        { name: 'Creative', temperature: 1.2 },
+                        { name: 'Greedy', do_sample: false }
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showComparisonResults(data.comparisons);
+                toast.success('Comparison complete');
+            } else {
+                toast.error(data.error || 'Comparison failed');
+            }
+        } catch (error) {
+            console.error('Comparison error:', error);
+            toast.error('Failed to compare');
+        }
+    }
+
+    function showComparisonResults(comparisons) {
+        const container = document.getElementById('comparison-results');
+        const grid = document.getElementById('comparison-grid');
+
+        container.style.display = 'block';
+        grid.innerHTML = comparisons.map(c => `
+            <div style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-color);">
+                <h4 style="margin-top: 0; color: var(--primary);">${c.name}</h4>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Temp: ${c.config.temperature || 'N/A'} | Status: ${c.status}
+                </div>
+                <pre style="white-space: pre-wrap; word-break: break-word; font-size: 0.85rem; max-height: 200px; overflow-y: auto;">${c.status === 'success' ? escapeHtml(c.output) : 'Error: ' + c.error}</pre>
+            </div>
+        `).join('');
+    }
+
+    function switchInferenceTab(tab) {
+        document.querySelectorAll('.inference-tab').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+        document.getElementById(`${tab}-tab`).style.display = 'block';
+        event.target.classList.add('active');
+    }
+
+    function applyInferencePreset(preset) {
+        const presets = {
+            creative: { temperature: 1.2, top_p: 0.95, top_k: 100 },
+            balanced: { temperature: 0.7, top_p: 0.9, top_k: 50 },
+            precise: { temperature: 0.3, top_p: 0.7, top_k: 20 },
+            deterministic: { do_sample: false }
+        };
+
+        const settings = presets[preset];
+        if (settings.temperature !== undefined) {
+            const tempInput = document.getElementById('gen-temperature');
+            const tempDisplay = document.getElementById('gen-temperature-display');
+            if (tempInput) tempInput.value = settings.temperature;
+            if (tempDisplay) tempDisplay.textContent = settings.temperature;
+        }
+        if (settings.top_p !== undefined) {
+            const topPInput = document.getElementById('gen-top-p');
+            const topPDisplay = document.getElementById('gen-top-p-display');
+            if (topPInput) topPInput.value = settings.top_p;
+            if (topPDisplay) topPDisplay.textContent = settings.top_p;
+        }
+        if (settings.top_k !== undefined) {
+            const topKInput = document.getElementById('gen-top-k');
+            const topKDisplay = document.getElementById('gen-top-k-display');
+            if (topKInput) topKInput.value = settings.top_k;
+            if (topKDisplay) topKDisplay.textContent = settings.top_k;
+        }
+
+        toast.success(`Applied ${preset} preset`);
+    }
+
+    // Chart Comparison Functions
+    let savedRunData = {};
+
+    function saveCurrentRunData() {
+        const runId = `run_${Date.now()}`;
+        const runName = prompt('Name this training run:', `Training ${new Date().toLocaleString()}`);
+
+        if (!runName) return;
+
+        if (typeof lossChart !== 'undefined' && lossChart && lossChart.trainLossData) {
+            savedRunData[runId] = {
+                name: runName,
+                data: lossChart.trainLossData,
+                timestamp: new Date().toISOString()
+            };
+
+            fetch('/api/charts/save-run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    run_id: runId,
+                    loss_data: lossChart.trainLossData,
+                    metadata: { name: runName }
+                })
+            });
+
+            toast.success(`Saved run: ${runName}`);
+        } else {
+            toast.warning('No training data to save');
+        }
+    }
+
+    function showComparisonModal() {
+        const modal = document.getElementById('chart-comparison-modal');
+        const list = document.getElementById('run-selection-list');
+
+        fetch('/api/charts/list')
+            .then(r => r.json())
+            .then(data => {
+                if (data.runs && data.runs.length > 0) {
+                    list.innerHTML = data.runs.map(run => `
+                        <label style="display: block; margin-bottom: 8px;">
+                            <input type="checkbox" class="run-checkbox" value="${run.run_id}">
+                            ${run.name} (${new Date(run.timestamp).toLocaleString()})
+                        </label>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p style="color: var(--text-muted);">No saved runs yet. Save a run during training to compare later.</p>';
+                }
+            });
+
+        modal.style.display = 'flex';
+    }
+
+    function closeComparisonModal() {
+        document.getElementById('chart-comparison-modal').style.display = 'none';
+    }
+
+    async function compareTrainingRuns() {
+        const selected = Array.from(document.querySelectorAll('.run-checkbox:checked'))
+            .map(cb => cb.value);
+
+        if (selected.length < 2) {
+            toast.warning('Select at least 2 runs to compare');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/charts/compare', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    run_ids: selected,
+                    chart_type: 'line'
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                const container = document.getElementById('comparison-chart-container');
+                const img = document.getElementById('comparison-chart');
+                container.style.display = 'block';
+                img.src = data.chart;
+            } else {
+                toast.error(data.error || 'Comparison failed');
+            }
+        } catch (error) {
+            console.error('Comparison error:', error);
+            toast.error('Failed to compare runs');
+        }
+    }
+
+    function clearSavedRuns() {
+        savedRunData = {};
+        toast.info('Cleared saved runs');
+        showComparisonModal();
+    }
+
+    function exportChartData() {
+        showExportLogsModal();
+    }
+
+    // Training logs export
+    function showExportLogsModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.id = 'export-logs-modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <button class="close-btn" onclick="closeExportLogsModal()">&times;</button>
+                <h2>Export Training Logs</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Download your training data for analysis.</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-primary" onclick="downloadLogs('json')">Download as JSON</button>
+                    <button class="btn btn-secondary" onclick="downloadLogs('csv')">Download as CSV</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    function closeExportLogsModal() {
+        const modal = document.getElementById('export-logs-modal');
+        if (modal) modal.remove();
+    }
+
+    async function downloadLogs(format) {
+        try {
+            const response = await fetch(`/api/logs/export?format=${format}`);
+            if (!response.ok) throw new Error('Export failed');
+
+            if (format === 'csv') {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `training_logs_${Date.now()}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else {
+                const data = await response.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `training_logs_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            toast.success(`Logs exported as ${format.toUpperCase()}`);
+            closeExportLogsModal();
+        } catch (error) {
+            console.error('Export error:', error);
+            toast.error('Failed to export logs');
+        }
+    }
+
+    // Browser tab title progress
+    const originalTitle = document.title;
+    let titleUpdateInterval = null;
+
+    function updateBrowserTitle(progress, status) {
+        if (progress !== null && progress !== undefined) {
+            const pct = Math.round(progress);
+            document.title = `[${pct}%] Training - AI Training For DumDums`;
+        } else if (status) {
+            document.title = `${status} - AI Training For DumDums`;
+        }
+    }
+
+    function resetBrowserTitle() {
+        document.title = originalTitle;
+    }
+
+    // Helper function
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Hook into training start/stop
+    const origShowTrainingUI = window.showTrainingUI;
+    if (origShowTrainingUI) {
+        window.showTrainingUI = function() {
+            origShowTrainingUI();
+            startMonitoring();
+            updateBrowserTitle(0, 'Starting');
+        };
+    }
+
+    const origResetTrainingUI = window.resetTrainingUI;
+    if (origResetTrainingUI) {
+        window.resetTrainingUI = function() {
+            origResetTrainingUI();
+            stopMonitoring();
+            resetBrowserTitle();
+            document.getElementById('monitoring-section').style.display = 'none';
+        };
+    }
+
+    // Hook into progress updates for tab title
+    // Try to hook updateProgressDisplay if it exists
+    setTimeout(() => {
+        if (typeof updateProgressDisplay === 'function') {
+            const origUpdateProgressDisplay = updateProgressDisplay;
+            window.updateProgressDisplay = function(progress, statusText) {
+                origUpdateProgressDisplay(progress, statusText);
+                updateBrowserTitle(progress, null);
+            };
+        }
+    }, 100);
+    </script>
+
+    <style>
+    .tab-btn {
+        padding: 10px 20px;
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 2px solid transparent;
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+    .inference-tab { animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .monitor-card {
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+    .monitor-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+    .preset-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        transition: all 0.2s;
+    }
+    </style>
+</body>
+</html>

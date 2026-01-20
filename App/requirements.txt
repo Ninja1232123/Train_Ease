@@ -1,0 +1,51 @@
+# AI Training For DumDums - Dependencies
+# Install with: pip install -r requirements.txt
+
+# =============================================================================
+# Core Dependencies
+# =============================================================================
+
+# Web Framework
+flask>=2.3.0
+flask-socketio>=5.3.0  # Real-time WebSocket support
+flask-cors>=4.0.0  # Cross-origin support
+gevent>=23.9.0  # Async server
+gevent-websocket>=0.10.1  # WebSocket support for gevent
+
+# AI/ML Libraries
+torch>=2.0.0
+transformers>=4.35.0
+datasets>=2.14.0
+accelerate>=0.24.0
+peft>=0.6.0  # For efficient fine-tuning (LoRA, etc.)
+sentencepiece>=0.1.99  # For some tokenizers
+protobuf>=4.24.0  # Required by some models
+
+# Utilities
+tqdm>=4.66.0
+numpy>=1.24.0
+requests>=2.31.0
+python-socketio>=5.10.0  # Socket.IO server support
+
+# =============================================================================
+# Optional Dependencies (for additional features)
+# =============================================================================
+
+# QLoRA / Quantization (install if you want 4-bit training)
+bitsandbytes>=0.41.0
+
+# System monitoring
+psutil>=5.9.0  # For RAM/CPU monitoring
+
+# =============================================================================
+# Development Dependencies (install with: pip install -r requirements-dev.txt)
+# =============================================================================
+
+# To install dev dependencies, create requirements-dev.txt with:
+# -r requirements.txt
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+# black>=23.0.0
+# flake8>=6.0.0
+# mypy>=1.5.0
+# pre-commit>=3.4.0

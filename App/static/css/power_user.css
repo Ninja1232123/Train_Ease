@@ -1,0 +1,324 @@
+/**
+ * Power User Features - Styling
+ * Advanced controls for experienced users
+ */
+
+/* Power User Panels */
+.power-user-panel {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.power-user-panel h3 {
+    color: var(--primary);
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1rem;
+}
+
+.power-user-panel h4 {
+    color: var(--text-secondary);
+    margin: 16px 0 8px 0;
+    font-size: 0.9rem;
+}
+
+/* Form Controls */
+.power-user-panel .form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.power-user-panel label {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.power-user-panel label small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 4px;
+    font-weight: normal;
+}
+
+.power-user-panel input[type="number"],
+.power-user-panel input[type="text"] {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+.power-user-panel textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.85rem;
+    resize: vertical;
+    margin-top: 4px;
+}
+
+.power-user-panel input[type="checkbox"],
+.power-user-panel input[type="radio"] {
+    margin-right: 8px;
+    accent-color: var(--primary);
+}
+
+/* Parameter Grid */
+.param-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+/* Warmup Config */
+.warmup-config {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.warmup-config label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.warmup-config input[type="radio"] {
+    margin: 0;
+}
+
+.warmup-config input[type="number"] {
+    width: 80px;
+    margin: 0;
+}
+
+/* Scheduler Preview */
+.scheduler-preview {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+}
+
+#scheduler-preview-chart {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* Optimizer Params Sections */
+.optimizer-params {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+/* LoRA+ Section */
+.lora-plus-params {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+/* Decay Groups */
+.decay-groups {
+    margin-top: 12px;
+}
+
+.no-decay-patterns {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Module Validation Result */
+#module-validation-result {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+#module-validation-result code {
+    background: var(--bg-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Loss Scaling Params */
+.dynamic-params {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+/* LR Finder Params */
+.lr-finder-params {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+/* Specific panel toggles */
+.lora-plus-toggle,
+.lr-finder-toggle,
+.decay-toggle {
+    margin-bottom: 8px;
+}
+
+.lora-plus-toggle small,
+.lr-finder-toggle small,
+.decay-toggle small {
+    display: block;
+    margin-left: 24px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Manual modules input */
+.manual-modules-input {
+    background: var(--bg-secondary);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .param-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .power-user-panel {
+        padding: 12px;
+    }
+
+    .warmup-config label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .warmup-config input[type="number"] {
+        width: 100%;
+        margin-top: 4px;
+    }
+}
+
+/* Collapsible content animation */
+#power-user-content.active {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =============================================================================
+   QAT Panel Styles
+   ============================================================================= */
+
+.qat-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.95em;
+    color: var(--text-primary);
+}
+
+.bit-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.bit-selector label {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 0;
+}
+
+.bit-selector label:hover {
+    border-color: var(--primary);
+    background: var(--bg-secondary);
+}
+
+.bit-selector input[type="radio"] {
+    margin-right: 8px;
+}
+
+.bit-selector input[type="radio"]:checked + .bit-desc,
+.bit-selector input[type="radio"]:checked ~ .bit-desc {
+    color: var(--primary);
+}
+
+.bit-desc {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: normal;
+}
+
+.memory-estimate {
+    font-size: 0.9em;
+}
+
+#qat-panel .panel-desc {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.qat-toggle {
+    margin-bottom: 12px;
+}
+
+.qat-toggle small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.8em;
+    margin-top: 4px;
+    margin-left: 24px;
+}
+
+/* Mobile responsiveness for QAT panel */
+@media (max-width: 600px) {
+    .bit-selector {
+        grid-template-columns: 1fr;
+    }
+}

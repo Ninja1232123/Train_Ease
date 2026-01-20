@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  training-app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      # Persist trained models and data
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./Outputs:/app/Outputs
+      - ./checkpoints:/app/checkpoints
+      # Mount HuggingFace cache to avoid re-downloading models
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    environment:
+      - HOST=0.0.0.0
+      - PORT=5000
+      - HF_HOME=/root/.cache/huggingface
+    # For GPU support (requires nvidia-docker)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # CPU-only version (no GPU)
+  training-app-cpu:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./Outputs:/app/Outputs
+      - ./checkpoints:/app/checkpoints
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    environment:
+      - HOST=0.0.0.0
+      - PORT=5000
+      - CUDA_VISIBLE_DEVICES=""
+    profiles:
+      - cpu
+    restart: unless-stopped
