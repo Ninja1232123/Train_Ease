@@ -37,45 +37,8 @@ import random
 # EfficientQAT integration
 from efficient_qat import add_qat_routes, validate_qat_config, QATConfig, EfficientQATTrainer, integrate_qat_in_training
 
-# Model Comparison integration
-from comparison_manager import ComparisonManager
-from comparison_routes import add_comparison_routes
-
-# Pi-Quantization integration (π/2-based quantization for 5x semantic leverage)
-from pi_quantizer import add_pi_quant_routes, PiQuantConfig, PiQuantizer, integrate_pi_quant_training
-
-# Pi-Quantization Benchmark (compare π/2 vs INT4/INT8)
-from pi_benchmark import add_benchmark_routes, PiBenchmark
-
-# Pi-Data Converter (shape training data for ground-up π-native models)
-from pi_data_converter import add_data_converter_routes, PiDataConverter, DatasetPartitioner
-
-# Pi-Data Formats (FAT32/NTFS/ext4 for training data)
-from pi_data_formats import add_format_routes, DataFormat, DataFormatConverter
-
-# Pi-Weight Initializer (geological strata weight initialization)
-from pi_weight_init import add_weight_init_routes, LayerConfig, PiWeightInitializer
-
-# Pi-Audio Encoder (music/MIDI encoding with groove preservation)
-from pi_audio_encoder import add_audio_routes, PiAudioEncoder, GrooveType, MusicTokenizer
-
 # Universal Data Loader (CSV, JSON, JSONL, Parquet, TXT → tokenized JSONL)
 from data_loader import add_data_loader_routes, DataLoader, DataFormat
-
-# π/2 4D Rotation Tokenizer (takes tokenized data and outputs 4 rotations)
-from pi_rotation_tokenizer import add_rotation_routes, PiRotationTokenizer, RotationConfig
-
-# π/2 Rotational Epoch Trainer (rotating phase perspectives for training)
-from pi_rotational_trainer import add_trainer_routes
-
-# π/2 Dataset Registry (pre-configured datasets for π/2 training)
-from pi_dataset_registry import add_registry_routes
-
-# π/2 Universal Encoder (feed it anything → rotations)
-from pi_universal_encoder import add_universal_encoder_routes
-
-# Autonomous Mind (continuous thinking entity)
-from autonomous_mind import add_mind_routes
 
 
 # =============================================================================
@@ -1234,44 +1197,8 @@ def create_app(config: Optional[Config] = None) -> tuple[Flask, SocketIO, Traini
     # Register EfficientQAT routes
     add_qat_routes(app, state_manager, validator, logger)
 
-    # Register Model Comparison routes
-    add_comparison_routes(app, comparison_manager, logger)
-
-    # Register Pi-Quantization routes (π/2-based quantization)
-    add_pi_quant_routes(app, state_manager, logger)
-
-    # Register Pi-Quantization Benchmark routes (compare π/2 vs INT4/INT8)
-    add_benchmark_routes(app, logger)
-
-    # Register Pi-Data Converter routes (shape data for ground-up training)
-    add_data_converter_routes(app, logger)
-
-    # Register Pi-Data Format routes (FAT32/NTFS/ext4 for training data)
-    add_format_routes(app, logger)
-
-    # Register Pi-Weight Initializer routes (geological strata weights)
-    add_weight_init_routes(app, logger)
-
-    # Register Pi-Audio Encoder routes (music/MIDI with groove preservation)
-    add_audio_routes(app)
-
     # Register Universal Data Loader routes (any format → tokenized JSONL)
     add_data_loader_routes(app, logger)
-
-    # Register π/2 4D Rotation Tokenizer routes (tokenized data → 4 rotations)
-    add_rotation_routes(app, logger)
-
-    # Register π/2 Rotational Epoch Trainer routes (rotating phase perspectives)
-    add_trainer_routes(app, logger)
-
-    # Register π/2 Dataset Registry routes (pre-configured datasets)
-    add_registry_routes(app, logger)
-
-    # Register π/2 Universal Encoder routes (feed it anything → rotations)
-    add_universal_encoder_routes(app, logger)
-
-    # Register Autonomous Mind routes (continuous thinking entity)
-    add_mind_routes(app, logger)
 
     return app, socketio, state_manager
 
@@ -5066,9 +4993,6 @@ class InferenceManager:
 # Global inference manager instance
 inference_manager = InferenceManager()
 
-# Global comparison manager instance (initialized after logger is set up)
-comparison_manager = None
-
 
 # =============================================================================
 # MAIN ENTRY POINT
@@ -5077,9 +5001,6 @@ comparison_manager = None
 # Create application instance
 config = create_config()
 logger = setup_logging(config)
-
-# Initialize comparison manager with logger
-comparison_manager = ComparisonManager(logger)
 
 app, socketio, state_manager = create_app(config)
 
